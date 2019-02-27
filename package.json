@@ -1,0 +1,28 @@
+{
+  "name": "gameboy-emulator-browser",
+  "version": "1.0.0",
+  "description": "A GameBody emulator written JavaScript for the browser",
+  "main": "index.html",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^5.14.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rogibb111/GameBoy-Emulator-Browser.git"
+  },
+  "keywords": [
+    "emulator",
+    "GameBoy",
+    "emu-dev"
+  ],
+  "author": "Robert Gibb",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Rogibb111/GameBoy-Emulator-Browser/issues"
+  },
+  "homepage": "https://github.com/Rogibb111/GameBoy-Emulator-Browser#readme"
+}
