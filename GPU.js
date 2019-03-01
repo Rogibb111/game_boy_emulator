@@ -1,4 +1,6 @@
-GPU = {
+'use strict';
+
+GPU  = {
     _canvas: {},
     _scrn: {},
     _mode: 0,
@@ -8,7 +10,7 @@ GPU = {
     reset: function() {
         var c = document.getElementById('screen');
         if (c && c.getContext) {
-            GPU._canvas = getContext('2d');
+            GPU._canvas = c.getContext('2d');
             if (GPU._canvas) {
                 if (GPU._canvas.createImageData) {
                     GPU._scrn = GPU._canvas.getImageData(160, 144); 
@@ -63,7 +65,33 @@ GPU = {
             // Hblank
             // After the last hblank, push screen data to canvas
             case 0: {
-                
+                if(GPU._modeClock >= 204) {
+                    GPU._modeClock = 0;
+                    GPU._line++;
+
+                    if(GPU._line == 143) {
+                        // Enter vblank
+                        GPU._mode == 1;
+                        GPU._canvas.putImageData(GPU._scrn, 0, 0);
+                    } else {
+                        GPU._mode = 2;
+                    }
+                }
+                break;
+            }
+
+            case 1: {
+                if(GPU._modeClock >= 456) {
+                    GPU._modeClock = 0;
+                    GPU._line += 1;
+
+                    if(GPU._line > 153) {
+                        // Restart scanning modes
+                        GPU._mode = 2;
+                        GPU._line = 0;
+                    }
+                }
+                break;
             }
         }
     }
