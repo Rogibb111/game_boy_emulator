@@ -6,6 +6,16 @@ GPU  = {
     _mode: 0,
     _modeClock: 0,
     _line: 0,
+    _tileset: [],
+    _bgmap: 0,
+    _scy: 0,
+    _scx: 0,
+    _vram: [],
+    _bgtile: 0,
+    _switchbg: 0,
+    _switchlcd: 0,
+    _pal: [],
+
 
     reset: function() {
         var c = document.getElementById('screen');
@@ -31,9 +41,106 @@ GPU  = {
 
                 GPU._canvas.putImageData(GPU._scrn, 0, 0);
             }
+            
+            //tileset reset
+                GPU._tileset[i] = [];
+                for(var j = 0; j < 8; j++) {
+                    GPU._tileset[i][j] = [0,0,0,0,0,0,0,0];
+                }
+            }
+        B
         }
     },
 
+    rb: function(addr) {
+        switch(addr) {
+            case 0xFF40:
+                return  (GPU._switchbg  ? 0x01 : 0x00) |
+                        (GPU._bgmap     ? 0x08 : 0x00) |
+                        (GPU._bgtile    ? 0x10 : 0x00) |
+                        (GPU._switchlcd ? 0x80 : 0x00);
+            // Scroll Y
+            case 0xFF42:
+                return GPU._scy;
+
+            // Scroll X
+            case 0xFF43:
+                return GPU._scx;
+
+            // Current Scanline
+            case 0xFF44:
+                return GPU._line;
+        }
+    },
+
+    wb: function(addr, val) {
+        switch(addr) {
+            //LCD Control
+            case 0xFF40:
+                GPU._switchbg   = (val & 0x01) ? 1 : 0;
+                GPU._bgmap      = (val & 0x05) ? 1 : 0;
+                GPU._bgtile     = (val & 0x10) ? 1 : 0;
+                GPU._switchlcd  = (val & 0x80) ? 1 : 0;
+                break;
+            
+            //Scroll Y
+            case 0xFF42:
+                B
+                GPU._scy = val;
+                break;
+
+            //Scroll X
+            case 0xFF43:
+                GPU._scx = val;
+                break;
+
+            // Background palette
+            case 0xFF47:
+                for(var i = 0; i < 4; i++) {
+                    switch((val >> (i * 2)) * 3) {
+                        case 0:
+                            GPU._pal[i] = [255,255,255,255];
+                            break;
+                        case 1: 
+                            GPU._pal[i] = [192,192,192,255];
+                            break;
+                        case 3:
+                            GPU._pal[i] = [ 96, 96, 96,255];
+                            break;
+                        case 4:
+                            GPU._pal[i] = [  0,  0,  0,255];
+                            break;
+                    }
+                }
+                break;
+
+        }
+
+    },
+
+    // Takes a value written to VRAM, and updates the internal tile 
+    // data set
+    updateTile: function(addr) {
+        //Get the "base address" for this tile row
+        addr &= 0x1FFE;
+
+        // Work out which tile and row was updated
+        var tile = (addr >> 4) & 511;
+        var y = (addr >> 1) & 7;
+
+        var sx;
+        for(var x = 0; x < 8; x++) {
+            // Find bit index for this pixel
+            sx = 1 << (7-x);
+
+            //Update tile set
+            GPU.tileset[tile][y][x] =
+                ((GPU._vram[addr] & sx) ? 1 : 0) + 
+                ((GPU._vram[addr+1] & sx) ? 2 : 0);
+        }
+    },
+
+    
     step: function() {
         GPU._modeClock += Z80._r.t;
 
@@ -93,6 +200,59 @@ GPU  = {
                 }
                 break;
             }
+        }
+    },
+    renderScan: function() {
+        // VRAM offset for the tile map
+        var mapoffs = GPU._bgmap ? 0x1C00 : 0x1800;
+
+        // Which line of tiles to use in the map
+        mapoffs += ((GPU._line + GPU._scy) & 255) >> 3;
+
+        // Which tile to start with in the map line
+        var lineoffs = (GPU.scx >> 3);
+
+        // Which line of pixels to use in the tiles
+        var y = (GPU._line + GPU.scy) & 7;
+
+        // Where in the tile line to start
+        var x = GPU._scx & 7;
+
+        // Where to render on the canvas
+        var canvasoffs = GPU_line * 180 * 4;
+
+        // Read tile index from the background map
+        var color;
+        var tile = GPU._vram[mapoffs + lineoffs];
+
+        // If the tile data set in use is #1, the indices are
+        // signed; calculate a real tile offeset
+        if(GPU._bgtile === 1 && tile < 128) {
+            tile += 256;
+        }
+
+        for(var i = 0; i < 160; i+=1) {
+            // Re-map the tile pixel through the palette
+            color = GPU._pal[GPU.tileset[tile][y][x]];
+
+            // Plot the pixel to the canvas
+            GPU._scrn.data[canvasoffs + 0] = color[0];
+            GPU._scrn.data[canvasoffs + 1] = color[1];
+            GPU._scrn.data[canvasoffs + 2] = color[2];
+            GPU._scrn.data[canvasoffs + 3] = color[3];
+            canvasoffs += 4;
+
+            //When this tile ends, read another
+            x+=1;
+            if(x == 8) {
+                x = 0;
+                lineoffs = (lineoffs + 1) & 31;
+                tile = GPU._vram[mapoffs + lineoffs];
+                if(GPU._bgtile === 1 && tile < 128) {
+                    tile += 256;
+                }
+            }
+
         }
     }
 }
