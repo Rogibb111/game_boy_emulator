@@ -10,6 +10,7 @@
 	"MMU": "writeable",
 	"GPU": "writeable",
 	"Z80": "writeable"
+	"BinFileReader": "readonly"
 	
     },
     "parserOptions": {

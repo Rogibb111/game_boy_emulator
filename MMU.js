@@ -109,7 +109,14 @@ MMU = {
                         }
                         else {
                             // I/0 control handling
-                            // Currently unhandled
+                            switch(addr & 0x00F0) {
+                                //GPU (64 registers)
+                                case 0x40:
+                                case 0x50:
+                                case 0x60:
+                                case 0x70:
+                                    return GPU.rb(addr);
+                            }
                             return 0;
                         }
 
@@ -123,9 +130,36 @@ MMU = {
         return MMU.rb(addr) + (MMU.rb(addr+1) << 8);
     },
     wb: function(addr, val) {
-        /* Write 8-bit byte to a given address */ 
-        },
-    ww: function(addr, val) { 
+        switch(addr & 0xF000) {
+            // Only the VRAM case is shown:
+            case 0x8000:
+            case 0x9000:
+                GPU._vram[addr & 0x1FFF] = val;
+                GPU.updateTile(addr, val);
+                break;
+            case 0xF000:
+                switch(addr & 0x0F00) {
+                    // Zero-page
+                    case 0xF00:
+                        if(addr >= 0xFF80) {
+                            MMU._zram[addr & 0x7F] = val;
+                        } else {
+                            // I/O 
+                            switch(addr & 0x00F0) {
+                                case 0x40:
+                                case 0x50:
+                                case 0x60:
+                                case 0x70:
+                                    GPU.wb(addr, val);
+                                    break;
+                            }
+                        }
+                        break;
+                }
+                break;
+        }       
+    },
+    ww: function() { 
         /* Write 16-bit word to a given address */ 
     },
 
