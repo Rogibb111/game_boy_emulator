@@ -48,11 +48,32 @@ GPU  = {
                     GPU._tileset[i][j] = [0,0,0,0,0,0,0,0];
                 }
             }
-        B
         }
     },
 
-    rb: function(addr) {
+    // Takes a value written to VRAM, and updates the internal
+    // tile data set
+    updateTile: function(addr, val) {
+        //Get teh "base address" for this tile row
+        addr &= 0x1FFE;
+
+        //Work out which tile and row has updated
+        var tile = (addr >> 4) & 511;
+        var y = (addr >> 1) & 7;
+
+        var sx;
+        for(var x = 0; x < 8; x += 1){
+            // Find bit index for this pixel
+            sx = 1 << (7 - x);
+
+            // Update tile set
+            GPU._tileset[tile][y][x] = 
+                ((GPU._vram[addr] & sx) ? 1 : 0) +
+                ((GPU._vram[addr+1] & sx) ? 2 : 0);
+        }
+    }
+
+    rb: function(addr) { 
         switch(addr) {
             case 0xFF40:
                 return  (GPU._switchbg  ? 0x01 : 0x00) |
