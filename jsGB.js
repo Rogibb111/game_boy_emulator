@@ -5,7 +5,7 @@ jsGB = {
         Z80.reset();
 
         MMU.load('test.gb');
-    }
+    },
 
     frame: function() {
         var fclk = Z80._clock.t + 70224;
@@ -35,5 +35,5 @@ jsGB = {
 window.onload = function() {
     document.getElementById('reset').onclick = jsGB.reset;
     document.getElementById('run').onclick = jsGB.run;
-    jsGB.reset();:
+    jsGB.reset();
 }

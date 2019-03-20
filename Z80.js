@@ -1,5 +1,3 @@
-'use strict';
-
 var _clock = { 
     m: 0, 
     t: 0
