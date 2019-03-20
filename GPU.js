@@ -1,4 +1,3 @@
-'use strict';
 
 GPU  = {
     _canvas: {},
@@ -23,7 +22,7 @@ GPU  = {
             GPU._canvas = c.getContext('2d');
             if (GPU._canvas) {
                 if (GPU._canvas.createImageData) {
-                    GPU._scrn = GPU._canvas.getImageData(160, 144); 
+                    GPU._scrn = GPU._canvas.createImageData(160, 144); 
                 } else if (GPU._canvas.getImageData) {
                     GPU._scrn = GPU._canvas.getImageData(0, 0, 160, 144);
                 } else {
@@ -43,11 +42,11 @@ GPU  = {
             }
             
             //tileset reset
-                GPU._tileset[i] = [];
-                for(var j = 0; j < 8; j++) {
-                    GPU._tileset[i][j] = [0,0,0,0,0,0,0,0];
-                }
+            GPU._tileset[i] = [];
+            for(var j = 0; j < 8; j++) {
+                GPU._tileset[i][j] = [0,0,0,0,0,0,0,0];
             }
+            
         }
     },
 
@@ -71,7 +70,7 @@ GPU  = {
                 ((GPU._vram[addr] & sx) ? 1 : 0) +
                 ((GPU._vram[addr+1] & sx) ? 2 : 0);
         }
-    }
+    },
 
     rb: function(addr) { 
         switch(addr) {

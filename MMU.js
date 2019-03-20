@@ -1,5 +1,3 @@
-'use strict';
-
 MMU = {
     // Flag indicating BIOS is mapped in
     // BIOS is unmapped with the first instruction above 0x00FF
@@ -166,5 +164,13 @@ MMU = {
     load: function(file) {
         var b =  new BinFileReader(file);
         this._rom = b.readString(b.getFileSize(), 0);
+    }
+
+    reset: function(file) {
+        _rom: '',
+        _wram: [],
+        _eram: [],
+        _zram: [],
+        _inbios: 1
     }
 };
