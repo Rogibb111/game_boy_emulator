@@ -98,17 +98,25 @@ MMU = {
                     case 0xE00:
                         if(addr < 0xFEA0) {
                             return GPU._oam[addr & 0xFF];
-                        } else {
-                            return 0;
-                        } 
+                        }                            
+                        return 0;
                     case 0xF00:
                         if(addr >= 0xFF80) {
                             return MMU.zram[addr & 0x7F];
+                        } else if (addr >= 0xFF40) {
+                            //GPU (64 registers)
+                            return GPU.rb(addr);
                         }
                         else {
-                            // I/0 control handling
                             switch(addr & 0x00F0) {
                                 //GPU (64 registers)
+                                case 0x00:
+                                    switch(addr & 0xF) {
+                                        case 0:
+                                            return KEY.rb();
+                                        default:
+                                            return 0;
+                                    }
                                 case 0x40:
                                 case 0x50:
                                 case 0x60:
@@ -137,7 +145,13 @@ MMU = {
                 break;
             case 0xF000:
                 switch(addr & 0x0F00) {
-                    // Zero-page
+                    case 0xE00:
+                        if(addr < 0xFEA0) {
+                            GPU._oam[addr & 0xFF] = val;
+                        }
+                        GPU.buildobjectdata(addr - 0xFE00, val);
+                        break;
+                        // Zero-page
                     case 0xF00:
                         if(addr >= 0xFF80) {
                             MMU._zram[addr & 0x7F] = val;
@@ -161,16 +175,21 @@ MMU = {
         /* Write 16-bit word to a given address */ 
     },
 
-    load: function(file) {
-        var b =  new BinFileReader(file);
-        this._rom = b.readString(b.getFileSize(), 0);
+    load: function(rom) {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            MMU._rom = reader.result;
+        }
+
+        reader.readAsBinaryString(rom);
     },
 
-    reset: function(file) {
-       this._rom = '';
-       this._wram = [];
-       this._eram = [];
-       this._zram = [];
-       this._inbios = 1 ;
+    reset: function() {
+        this._rom = '';
+        this._wram = [];
+        this._eram = [];
+        this._zram = [];
+        this._inbios = 1 ;
     }
 };
