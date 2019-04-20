@@ -3,8 +3,9 @@ jsGB = {
         GPU.reset();
         MMU.reset();
         Z80.reset();
-
-        MMU.load('test.gb');
+        
+        const rom = File.createFromFileName('test.gb');
+        MMU.load(rom);
     },
 
     frame: function() {

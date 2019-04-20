@@ -9,7 +9,8 @@
         "SharedArrayBuffer": "readonly",
 	"MMU": "writeable",
 	"GPU": "writeable",
-	"Z80": "writeable"
+	"Z80": "writeable",
+	"KEY": "writeable",
 	"BinFileReader": "readonly"
 	
     },
