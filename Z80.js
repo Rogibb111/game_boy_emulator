@@ -17,7 +17,9 @@ var _r = {
     sp: 0,
     // clock for last instructions
     m: 0,
-    t: 0
+    t: 0,
+    // interupt master enable
+    ime: 0
 };
 
 Z80 = {
@@ -89,6 +91,20 @@ Z80 = {
         Z80._r.t = 4; 
     },
 
+    // Disable IME
+    DI: function() {
+        Z80._r.ime = 0;
+        Z80._r.m = 1;
+        z80._r.t = 4;
+    },
+    
+    // Enable IME
+    EI: function() {
+        Z80._r.ime = 1;
+        Z80._r.m = 1;
+        z80._r.t = 4;
+    },
+
     // No-opertation (NOP)
     NOP: function() {
         Z80._r.m = 1; // 1 M-time take
@@ -98,9 +114,9 @@ Z80 = {
     // Push registers B and C to the stack (PUSH BC)
     PUSHBC: function() {
         Z80._r.sp--;                               // Drop through the stack
-	    MMU.wb(Z80._r.sp, Z80._r.b);               // Write B
-	    Z80._r.sp--;                               // Drop through the stack
-	    MMU.wb(Z80._r.sp, Z80._r.c);               // Write C
+        MMU.wb(Z80._r.sp, Z80._r.b);               // Write B
+        Z80._r.sp--;                               // Drop through the stack
+        MMU.wb(Z80._r.sp, Z80._r.c);               // Write C
         Z80._r.m = 3;                              // 3 M-times taken
         Z80._r.t = 12;               
     },
@@ -122,5 +138,18 @@ Z80 = {
         Z80._r.a = MMU.rb(addr);                   // Read from address
         Z80._r.m = 4;                              // 4 M-times taken
         Z80._r.t=16;                 
+    },
+
+    // Return from interrupt (called by handler)
+    RETI: function() {
+        // Restore interrupts
+        Z80._r.ime = 1;
+
+        // Jump to the address on the stack
+        Z80._r.pc = MMU.rw(Z80._r.sp);
+        Z80._r.sp += 2;
+
+        Z80._r.m = 3;
+        Z80._r.t = 12;
     }
 };
