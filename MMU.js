@@ -26,6 +26,8 @@ MMU = {
     _wram: [],
     _eram: [],
     _zram: [],
+    _ie: 0,
+    _if: 0,
 
     // Read a byte from memory
     rb: function(addr) {
@@ -101,7 +103,9 @@ MMU = {
                         }                            
                         return 0;
                     case 0xF00:
-                        if(addr >= 0xFF80) {
+                        if (addr === 0xFFFF ) {
+                            return MMU._ie;
+                        } else if (addr >== 0xFF80) {
                             return MMU.zram[addr & 0x7F];
                         } else if (addr >= 0xFF40) {
                             //GPU (64 registers)
@@ -111,6 +115,9 @@ MMU = {
                             switch(addr & 0x00F0) {
                                 //GPU (64 registers)
                                 case 0x00:
+                                    if (addr === 0xFF0F) {
+                                        return MMU._if;
+                                    }
                                     switch(addr & 0xF) {
                                         case 0:
                                             return KEY.rb();
