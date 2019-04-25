@@ -1,4 +1,4 @@
-var _clock = { 
+var _clock = {
     m: 0, 
     t: 0
 };
@@ -52,8 +52,25 @@ Z80 = {
             Z80._r.pc &= 65535;                        // Mask PC to 16 bits
             Z80._clock.m += Z80._r.m;                  // Add time to CPU clock
             Z80._clock.t += Z80._r.t;
+            Z80._r.m = 0;
+            Z80._r.m = 0;
 
             GPU.step();
+
+            // If IME is on, and some interrupts are enabled in IE, and 
+            // an interrup flag is set, handle the interrupt
+            if(Z80._r.ime && MMU._ie && MMU._if) {
+                // Mask off ints that aren't enabled
+                var ifired = MMU._ie & MMU._if;
+
+                if(ifired & 0x01) {
+                    MMU._if &= (255 - 0x01);
+                    Z80._ops.RST40();
+                }
+            }
+
+            Z80._clock.m += Z80._r.m;
+            Z80._clock.t += Z80._r.t;
         }
     },
 
@@ -95,14 +112,14 @@ Z80 = {
     DI: function() {
         Z80._r.ime = 0;
         Z80._r.m = 1;
-        z80._r.t = 4;
+        Z80._r.t = 4;
     },
     
     // Enable IME
     EI: function() {
         Z80._r.ime = 1;
         Z80._r.m = 1;
-        z80._r.t = 4;
+        Z80._r.t = 4;
     },
 
     // No-opertation (NOP)
@@ -149,6 +166,21 @@ Z80 = {
         Z80._r.pc = MMU.rw(Z80._r.sp);
         Z80._r.sp += 2;
 
+        Z80._r.m = 3;
+        Z80._r.t = 12;
+    },
+    
+    // Start vblank handler (0040h)
+    RST40: function() {
+        // Disable further interrupts
+        Z80._r.ime = 0;
+
+        // Save current SP on the stack
+        Z80._r.sp -= 2;
+        MMU.ww(Z80._r.sp, Z80._r.pc);
+
+        // Jump to handler
+        Z80._r.pc = 0x0040;
         Z80._r.m = 3;
         Z80._r.t = 12;
     }
