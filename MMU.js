@@ -190,18 +190,6 @@ MMU = {
         }
 
         reader.readAsBinaryString(rom);
-    },
-        /* Write 16-bit word to a given address */ 
-    },
-
-    load: function(rom) {
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            MMU._rom = reader.result;
-        }
-
-        reader.readAsBinaryString(rom);
 
         MMU._carttype = MMU._rom.charCodeAt(0x0147);
     },
@@ -214,15 +202,14 @@ MMU = {
         this._inbios = 1 ;
 
         //initialize MBC internal data
-        MMU._mbc[0] = {},
-        MMY._mbc[1] = {
+        MMU._mbc[0] = {};
+        MMU._mbc[1] = {
             rombank: 0,     // Selected ROM bank
             rambank: 0,     // Selected RAM bank
             ramon: 0,       // RAM enable switch
             mode: 0         // ROM/RAM expansion mode
-        }
+        };
+        MMU._romoffs = 0x4000;
+        MMU._ramoffs = 0x0000;
     }
-
-    MMU._romoffs = 0x4000;
-    MMY._ramoffs = 0x0000;
 };
