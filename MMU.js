@@ -144,11 +144,71 @@ MMU = {
     },
     wb: function(addr, val) {
         switch(addr & 0xF000) {
+            // MBC1: External Ram Switch
+            case 0x0000:
+            case 0x1000:
+                switch(MMU._carttype) {
+                    case 2:
+                    case 3:
+                        MMU._mbc[1].ramon = ((val & 0x0F) == 0x0A) ? 1 : 0;
+                }
+                break;
+            // MBC1: ROM bank
+            case 0x2000:
+            case 0x3000:
+                switch(MMU._carttype) {
+                    case 1:
+                    case 2:
+                    case 3:
+                        // Set lower 5 bits of ROM bank (skipping #0)
+                        val &= 0x1F;
+                        if (!val) {
+                            val = 1;
+                        }
+                        MMU._mbc[1].rombank = (MMU._mbc[1].rombank & 0x60) + val;
+
+                        // Calculate ROM offset from bank
+                        MMU._romoffs = MMU._mbc[1].rombank * 0x4000;
+                        break;
+                }
+                break;
+            case 0x4000:
+            case 0x5000:
+                switch(MMU._carttype) {
+                    case 1:
+                    case 2:
+                    case 3:
+                        if(MMU._mbc[1].mode) {
+                            // RAM mode: Set bank
+                            MMU._mbc[1].rambank = val & 3;
+                            MMU._ramoffs = MMU._mbc[1].rambank * 0x2000;
+                        } else {
+                            // ROM mode: Set high bits of bank
+                            MMU._mbc[1].rombank = (MMU._mbc[1].rombank & 0x1F) + ((val & 3) << 5);
+                            MMU._romoffs = MMU._mbc[1].rombank * 0x4000;
+                        }
+                        break;
+                }
+                break;
+            case 0x6000:
+            case 0x7000:
+                switch(MMU._carttype) {
+                    case 2:
+                    case 3:
+                        MMU._mbc[1].mode = val & 1;
+                        break;
+                }
+                break;
             // Only the VRAM case is shown:
             case 0x8000:
             case 0x9000:
                 GPU._vram[addr & 0x1FFF] = val;
                 GPU.updateTile(addr, val);
+                break;
+            // External RAM
+            case 0xA000:
+            case 0xB000:
+                MMU._eram[MMU._ramoffs + (addr & 0x1FFF)] = val;
                 break;
             case 0xF000:
                 switch(addr & 0x0F00) {
