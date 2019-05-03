@@ -10,7 +10,8 @@
 	"MMU": "writeable",
 	"GPU": "writeable",
 	"Z80": "writeable",
-	"KEY": "writeable",
+    "KEY": "writeable",
+    "TIMER": "writeable",
 	"BinFileReader": "readonly"
 	
     },

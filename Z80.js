@@ -52,6 +52,10 @@ Z80 = {
             Z80._r.pc &= 65535;                        // Mask PC to 16 bits
             Z80._clock.m += Z80._r.m;                  // Add time to CPU clock
             Z80._clock.t += Z80._r.t;
+
+            // Update the Timer
+            TIMER.inc();
+
             Z80._r.m = 0;
             Z80._r.m = 0;
 
@@ -71,6 +75,9 @@ Z80 = {
 
             Z80._clock.m += Z80._r.m;
             Z80._clock.t += Z80._r.t;
+
+            // Update timer again, in case a RST occured
+            TIMER.inc();
         }
     },
 
