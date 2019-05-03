@@ -29,6 +29,18 @@ MMU = {
     _ie: 0,
     _if: 0,
 
+    // MBC states
+     _mbc: [],
+    
+    // Offset for second ROM bank
+    _romoffs: 0x4000,
+
+    // Offset for RAM bank
+    _ramoffs: 0x000,
+
+    // Copy of the ROM's cartridge-type value
+    _carttype: 0,
+
     // Read a byte from memory
     rb: function(addr) {
         //Look at opcode of instruction (first four bites)
@@ -50,12 +62,12 @@ MMU = {
             case 0x3000:
                 return MMU._rom.charCodeAt(addr);
 
-            //ROM1 (unbanked) (16k)
+            //ROM (switched bank)
             case 0x4000:
             case 0x5000:
             case 0x6000:
             case 0x7000:
-                return MMU._rom.charCodeAt(addr);
+                return MMU._rom.charCodeAt(MMU._romoffs + (addr & 0x3FFF));
             
             // Graphics: VRAM (8k) 
             case 0x8000:
@@ -65,7 +77,7 @@ MMU = {
             // External RAM (8k)
             case 0xA000:
             case 0xB000:
-                return MMU._eram[addr & 0x1FFF];
+                return MMU._eram[MMU._ramoffs + (addr & 0x1FFF)];
 
             // Working RAM (8k) 
             case 0xC000:
@@ -80,18 +92,6 @@ MMU = {
             case 0xF000:
                 switch (addr & 0x0F00) {
                     case 0x000:
-                    case 0x100:
-                    case 0x200:
-                    case 0x300:
-                    case 0x400:
-                    case 0x500:
-                    case 0x600:
-                    case 0x700:
-                    case 0x800:
-                    case 0x900:
-                    case 0xA00:
-                    case 0xB00:
-                    case 0xC00:
                     case 0xD00:
                         return MMU._wram[addr & 0x1FFF];
 
@@ -105,7 +105,7 @@ MMU = {
                     case 0xF00:
                         if (addr === 0xFFFF ) {
                             return MMU._ie;
-                        } else if (addr >== 0xFF80) {
+                        } else if (addr >= 0xFF80) {
                             return MMU.zram[addr & 0x7F];
                         } else if (addr >= 0xFF40) {
                             //GPU (64 registers)
@@ -191,6 +191,20 @@ MMU = {
 
         reader.readAsBinaryString(rom);
     },
+        /* Write 16-bit word to a given address */ 
+    },
+
+    load: function(rom) {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            MMU._rom = reader.result;
+        }
+
+        reader.readAsBinaryString(rom);
+
+        MMU._carttype = MMU._rom.charCodeAt(0x0147);
+    },
 
     reset: function() {
         this._rom = '';
@@ -198,5 +212,17 @@ MMU = {
         this._eram = [];
         this._zram = [];
         this._inbios = 1 ;
+
+        //initialize MBC internal data
+        MMU._mbc[0] = {},
+        MMY._mbc[1] = {
+            rombank: 0,     // Selected ROM bank
+            rambank: 0,     // Selected RAM bank
+            ramon: 0,       // RAM enable switch
+            mode: 0         // ROM/RAM expansion mode
+        }
     }
+
+    MMU._romoffs = 0x4000;
+    MMY._ramoffs = 0x0000;
 };
