@@ -12,6 +12,7 @@
 	"Z80": "writeable",
     "KEY": "writeable",
     "TIMER": "writeable",
+    "jsGB": "writeable",
 	"BinFileReader": "readonly"
 	
     },

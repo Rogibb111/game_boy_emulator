@@ -3,9 +3,8 @@ jsGB = {
         GPU.reset();
         MMU.reset();
         Z80.reset();
-        
-        const rom = File.createFromFileName('test.gb');
-        MMU.load(rom);
+        const fileInput = document.getElementById('file-input');
+        fileInput.value = ''
     },
 
     frame: function() {
@@ -37,4 +36,11 @@ window.onload = function() {
     document.getElementById('reset').onclick = jsGB.reset;
     document.getElementById('run').onclick = jsGB.run;
     jsGB.reset();
+}
+
+function handleRomSelect({ target }){
+    const { files } = target;
+    const rom = files[0];
+
+    MMU.load(rom);
 }
