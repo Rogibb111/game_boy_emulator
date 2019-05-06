@@ -1,3 +1,5 @@
+import GPU from './GPU';
+
 class GameBoy {
 
     _interval: number = null;
