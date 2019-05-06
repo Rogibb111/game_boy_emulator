@@ -36,50 +36,6 @@ Z80 = {
         Z80._r = JSON.parse(JSON.stringify(_r));
     },
 
-    dispatcher: function() {
-        Z80._map = [
-            Z80._ops.NOP,
-            Z80._ops.LDBCnn,
-            Z80._ops.LDBCmA,
-            Z80._ops.INCBC,
-            Z80._ops.INCr_b,
-        ];
-
-        while(true)
-        {
-            var op = MMU.rb(Z80._r.pc++);              // Fetch instruction
-            Z80._map[op]();                            // Dispatch
-            Z80._r.pc &= 65535;                        // Mask PC to 16 bits
-            Z80._clock.m += Z80._r.m;                  // Add time to CPU clock
-            Z80._clock.t += Z80._r.t;
-
-            // Update the Timer
-            TIMER.inc();
-
-            Z80._r.m = 0;
-            Z80._r.m = 0;
-
-            GPU.step();
-
-            // If IME is on, and some interrupts are enabled in IE, and 
-            // an interrup flag is set, handle the interrupt
-            if(Z80._r.ime && MMU._ie && MMU._if) {
-                // Mask off ints that aren't enabled
-                var ifired = MMU._ie & MMU._if;
-
-                if(ifired & 0x01) {
-                    MMU._if &= (255 - 0x01);
-                    Z80._ops.RST40();
-                }
-            }
-
-            Z80._clock.m += Z80._r.m;
-            Z80._clock.t += Z80._r.t;
-
-            // Update timer again, in case a RST occured
-            TIMER.inc();
-        }
-    },
 
     /*----------------------------*\
     ||        Instructions        ||
