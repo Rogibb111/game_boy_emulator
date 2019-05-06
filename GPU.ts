@@ -1,81 +1,90 @@
 
 class GPU {
-    _canvas = {};
-    _scrn = {};
+    _canvas: CanvasRenderingContext2D = null;
+    _scrn: ImageData = null;
     _mode = 0;
     _modeClock = 0;
     _line = 0;
     _tileset = [];
-    _bgmap: 0,
-    _scy: 0,
-    _scx: 0,
-    _vram: [],
-    _bgtile: 0,
-    _switchbg: 0,
-    _switchlcd: 0,
-    _pal: {
+    _bgmap = 0;
+    _scy = 0;
+    _scx = 0;
+    _vram = [];
+    _bgtile = 0;
+    _switchbg = 0;
+    _switchobj = 0;
+    _switchlcd = 0;
+    _pal = {
         bg: [],
         obj0: [],
         obj1: []
-    },
-    _oam: [],
-    _objdata: [],
+    };
+    _oam = [];
+    _objdata = [];
+
+    constructor() {
+        this.reset();
+    }
 
 
-    reset: function() {
-        var c = document.getElementById('screen');
+    reset(): void {
+        const c: HTMLCanvasElement = <HTMLCanvasElement> document.getElementById('screen');
         if (c && c.getContext) {
-            GPU._canvas = c.getContext('2d');
-            if (GPU._canvas) {
-                if (GPU._canvas.createImageData) {
-                    GPU._scrn = GPU._canvas.createImageData(160, 144); 
-                } else if (GPU._canvas.getImageData) {
-                    GPU._scrn = GPU._canvas.getImageData(0, 0, 160, 144);
+            this._canvas = c.getContext('2d');
+            if (this._canvas) {
+                if (this._canvas.createImageData) {
+                    this._scrn = this._canvas.createImageData(160, 144); 
+                } else if (this._canvas.getImageData) {
+                    this._scrn = this._canvas.getImageData(0, 0, 160, 144);
                 } else {
-                    GPU._scrn = {
-                        'width': 160,
-                        'height': 144,
-                        'data': new Array(160*144*4)
+                    this._scrn = {
+                        width: 160,
+                        height: 144,
+                        data: new Uint8ClampedArray(160*144*4)
                     };
                 }
 
                 // Initialize canvas to white
-                for (var i = 0; i < 160*144*4; i++) {
-                    GPU._scrn.data[i] = 255;
+                for (let i = 0; i < 160*144*4; i++) {
+                    this._scrn.data[i] = 255;
                 }
 
-                GPU._canvas.putImageData(GPU._scrn, 0, 0);
+                this._canvas.putImageData(this._scrn, 0, 0);
             }
             
             //tileset reset
-            GPU._tileset[i] = [];
-            for(var j = 0; j < 8; j++) {
-                GPU._tileset[i][j] = [0,0,0,0,0,0,0,0];
+            this._tileset = [];
+            for(let i = 0; i < 384; i += 1) {
+                this._tileset[i] = [];
+                for(var j = 0; j < 8; j += 1) {
+                    this._tileset[i][j] = [0,0,0,0,0,0,0,0];
+                }
             }
+ 
         }
 
         //Reset Sprite Memory (OAM)
-        for (var k=0, n=0; k<40; k++, n+=4) {
-            GPU._oam[n + 0] = 0;
-            GPU._oam[n + 1] = 0;
-            GPU._oam[n + 2] = 0;
-            GPU._oam[n + 3] = 0;
-            GPU._objdata[k] = {
-                'y': -16,
-                'x': -8,
-                'tile': 0,
-                'palette': 0,
-                'xflip': 0,
-                'prio': 0,
-                'num': k
+        for (let k=0, n=0; k < 40; k +=1 , n += 4) {
+            this._oam[n + 0] = 0;
+            this._oam[n + 1] = 0;
+            this._oam[n + 2] = 0;
+            this._oam[n + 3] = 0;
+            this._objdata[k] = {
+                y: -16,
+                x: -8,
+                tile: 0,
+                palette: 0,
+                xflip: 0,
+                prio: 0,
+                num: k
             };
         }
-    },
+    }
 
     // Takes a value written to VRAM, and updates the internal
     // tile data set
-    updateTile: function(addr, val) {
-        //Get teh "base address" for this tile row
+    updateTile(addr, val): void {
+        //Get the "base address" for this tile row
         addr &= 0x1FFE;
 
         //Work out which tile and row has updated
@@ -83,58 +92,58 @@ class GPU {
         var y = (addr >> 1) & 7;
 
         var sx;
-        for(var x = 0; x < 8; x += 1){
+        for (var x = 0; x < 8; x += 1) {
             // Find bit index for this pixel
             sx = 1 << (7 - x);
 
             // Update tile set
-            GPU._tileset[tile][y][x] = 
-                ((GPU._vram[addr] & sx) ? 1 : 0) +
-                ((GPU._vram[addr+1] & sx) ? 2 : 0);
+            this._tileset[tile][y][x] = 
+                ((this._vram[addr] & sx) ? 1 : 0) +
+                ((this._vram[addr+1] & sx) ? 2 : 0);
         }
-    },
+    }
 
-    rb: function(addr) { 
+    rb(addr): number { 
         switch(addr) {
             case 0xFF40:
-                return  (GPU._switchbg  ? 0x01 : 0x00) |
-                        (GPU._switchobj ? 0x02 : 0x00) |
-                        (GPU._bgmap     ? 0x08 : 0x00) |
-                        (GPU._bgtile    ? 0x10 : 0x00) |
-                        (GPU._switchlcd ? 0x80 : 0x00);
+                return  (this._switchbg  ? 0x01 : 0x00) |
+                        (this._switchobj ? 0x02 : 0x00) |
+                        (this._bgmap     ? 0x08 : 0x00) |
+                        (this._bgtile    ? 0x10 : 0x00) |
+                        (this._switchlcd ? 0x80 : 0x00);
             // Scroll Y
             case 0xFF42:
-                return GPU._scy;
+                return this._scy;
 
             // Scroll X
             case 0xFF43:
-                return GPU._scx;
+                return this._scx;
 
             // Current Scanline
             case 0xFF44:
-                return GPU._line;
+                return this._line;
         }
-    },
+    }
 
-    wb: function(addr, val) {
+    wb(addr, val): void {
         switch(addr) {
             //LCD Control
             case 0xFF40:
-                GPU._switchbg   = (val & 0x01) ? 1 : 0;
-                GPU._switchobj  = (val & 0x02) ? 1 : 0;
-                GPU._bgmap      = (val & 0x05) ? 1 : 0;
-                GPU._bgtile     = (val & 0x10) ? 1 : 0;
-                GPU._switchlcd  = (val & 0x80) ? 1 : 0;
+                this._switchbg   = (val & 0x01) ? 1 : 0;
+                this._switchobj  = (val & 0x02) ? 1 : 0;
+                this._bgmap      = (val & 0x05) ? 1 : 0;
+                this._bgtile     = (val & 0x10) ? 1 : 0;
+                this._switchlcd  = (val & 0x80) ? 1 : 0;
                 break;
             
             //Scroll Y
             case 0xFF42:
-                GPU._scy = val;
+                this._scy = val;
                 break;
 
             //Scroll X
             case 0xFF43:
-                GPU._scx = val;
+                this._scx = val;
                 break;
 
             // Background palette
@@ -142,16 +151,16 @@ class GPU {
                 for(var i = 0; i < 4; i++) {
                     switch((val >> (i * 2)) * 3) {
                         case 0:
-                            GPU._pal.bg[i] = [255,255,255,255];
+                            this._pal.bg[i] = [255,255,255,255];
                             break;
                         case 1: 
-                            GPU._pal.bg[i] = [192,192,192,255];
+                            this._pal.bg[i] = [192,192,192,255];
                             break;
                         case 3:
-                            GPU._pal.bg[i] = [ 96, 96, 96,255];
+                            this._pal.bg[i] = [ 96, 96, 96,255];
                             break;
                         case 4:
-                            GPU._pal.bg[i] = [  0,  0,  0,255];
+                            this._pal.bg[i] = [  0,  0,  0,255];
                             break;
                     }
                 }
@@ -162,16 +171,16 @@ class GPU {
                 for(var k = 0; k < 4; k++) {
                     switch((val >> (k * 2)) * 3) {
                         case 0:
-                            GPU._pal.obj0[k] = [255,255,255,255];
+                            this._pal.obj0[k] = [255,255,255,255];
                             break;
                         case 1: 
-                            GPU._pal.obj0[k] = [192,192,192,255];
+                            this._pal.obj0[k] = [192,192,192,255];
                             break;
                         case 3:
-                            GPU._pal.obj0[k] = [ 96, 96, 96,255];
+                            this._pal.obj0[k] = [ 96, 96, 96,255];
                             break;
                         case 4:
-                            GPU._pal.obj0[k] = [  0,  0,  0,255];
+                            this._pal.obj0[k] = [  0,  0,  0,255];
                             break;
                     }
                 }
@@ -181,33 +190,33 @@ class GPU {
                 for(var j = 0; j < 4; j++) {
                     switch((val >> (j * 2)) * 3) {
                         case 0:
-                            GPU._pal.obj1[j] = [255,255,255,255];
+                            this._pal.obj1[j] = [255,255,255,255];
                             break;
                         case 1: 
-                            GPU._pal.obj1[j] = [192,192,192,255];
+                            this._pal.obj1[j] = [192,192,192,255];
                             break;
                         case 3:
-                            GPU._pal.obj1[j] = [ 96, 96, 96,255];
+                            this._pal.obj1[j] = [ 96, 96, 96,255];
                             break;
                         case 4:
-                            GPU._pal.obj1[j] = [  0,  0,  0,255];
+                            this._pal.obj1[j] = [  0,  0,  0,255];
                             break;
                     }
                 }
                 break;
         }
-    },
+    }
     
-    step: function() {
-        GPU._modeClock += Z80._r.t;
+    step(): void {
+        this._modeClock += Z80._r.t;
 
-        switch(GPU._mode) {
+        switch(this._mode) {
             // OAM read mode, scanline active
             case 2: {
-                if (GPU._modeClock >= 80) {
+                if (this._modeClock >= 80) {
                     // Set Next step to VRAM read mode
-                    GPU._modeClock = 0;
-                    GPU._mode = 3;
+                    this._modeClock = 0;
+                    this._mode = 3;
                 }
                 break;
             }
@@ -215,13 +224,13 @@ class GPU {
             // VRAM read mode, scanline active
             // Treat end of mode 3 as end of scanline (dump to framebuffer)
             case 3: {
-                if(GPU._modeClock >= 172) {
+                if(this._modeClock >= 172) {
                     // Set Next step to hblank mode
-                    GPU._modeClock = 0;
-                    GPU._mode = 0;
+                    this._modeClock = 0;
+                    this._mode = 0;
 
                     // Write a scanline to the framebuffer
-                    GPU.renderscan();
+                    this.renderScan();
                 }
                 break;
             }
@@ -229,79 +238,79 @@ class GPU {
             // Hblank
             // After the last hblank, push screen data to canvas
             case 0: {
-                if(GPU._modeClock >= 204) {
-                    GPU._modeClock = 0;
-                    GPU._line++;
+                if(this._modeClock >= 204) {
+                    this._modeClock = 0;
+                    this._line++;
 
-                    if(GPU._line == 143) {
+                    if(this._line == 143) {
                         // Enter vblank
-                        GPU._mode == 1;
-                        GPU._canvas.putImageData(GPU._scrn, 0, 0);
+                        this._mode = 1;
+                        this._canvas.putImageData(this._scrn, 0, 0);
                     } else {
-                        GPU._mode = 2;
+                        this._mode = 2;
                     }
                 }
                 break;
             }
 
             case 1: {
-                if(GPU._modeClock >= 456) {
-                    GPU._modeClock = 0;
-                    GPU._line += 1;
+                if(this._modeClock >= 456) {
+                    this._modeClock = 0;
+                    this._line += 1;
 
-                    if(GPU._line > 153) {
+                    if(this._line > 153) {
                         // Restart scanning modes
-                        GPU._mode = 2;
-                        GPU._line = 0;
+                        this._mode = 2;
+                        this._line = 0;
                     }
                 }
                 break;
             }
         }
-    },
+    }
 
-    renderScan: function() {
+    renderScan(): void {
         // Scanline data, for use by sprite renderer
         var scanrow = [];
 
-        if (GPU._switchbg) {
+        if (this._switchbg) {
             // VRAM offset for the tile map
-            var mapoffs = GPU._bgmap ? 0x1C00 : 0x1800;
+            var mapoffs = this._bgmap ? 0x1C00 : 0x1800;
 
             // Which line of tiles to use in the map
-            mapoffs += ((GPU._line + GPU._scy) & 255) >> 3;
+            mapoffs += ((this._line + this._scy) & 255) >> 3;
 
             // Which tile to start with in the map line
-            var lineoffs = (GPU.scx >> 3);
+            var lineoffs = (this._scx >> 3);
 
             // Which line of pixels to use in the tiles
-            var y = (GPU._line + GPU.scy) & 7;
+            var y = (this._line + this._scy) & 7;
 
             // Where in the tile line to start
-            var x = GPU._scx & 7;
+            var x = this._scx & 7;
 
             // Where to render on the canvas
-            var canvasoffs = GPU._line * 180 * 4;
+            var canvasoffs = this._line * 180 * 4;
 
             // Read tile index from the background map
             var color;
-            var tile = GPU._vram[mapoffs + lineoffs];
+            var tile = this._vram[mapoffs + lineoffs];
 
             // If the tile data set in use is #1, the indices are
             // signed; calculate a real tile offeset
-            if (GPU._bgtile === 1 && tile < 128) {
+            if (this._bgtile === 1 && tile < 128) {
                 tile += 256;
             }
 
             for (var i = 0; i < 160; i+=1) {
                 // Re-map the tile pixel through the palette
-                color = GPU._pal[GPU.tileset[tile][y][x]];
+                color = this._pal[this._tileset[tile][y][x]];
 
                 // Plot the pixel to the canvas
-                GPU._scrn.data[canvasoffs + 0] = color[0];
-                GPU._scrn.data[canvasoffs + 1] = color[1];
-                GPU._scrn.data[canvasoffs + 2] = color[2];
-                GPU._scrn.data[canvasoffs + 3] = color[3];
+                this._scrn.data[canvasoffs + 0] = color[0];
+                this._scrn.data[canvasoffs + 1] = color[1];
+                this._scrn.data[canvasoffs + 2] = color[2];
+                this._scrn.data[canvasoffs + 3] = color[3];
                 canvasoffs += 4;
 
                 //When this tile ends, read another
@@ -309,33 +318,33 @@ class GPU {
                 if (x == 8) {
                     x = 0;
                     lineoffs = (lineoffs + 1) & 31;
-                    tile = GPU._vram[mapoffs + lineoffs];
-                    if (GPU._bgtile === 1 && tile < 128) {
+                    tile = this._vram[mapoffs + lineoffs];
+                    if (this._bgtile === 1 && tile < 128) {
                         tile += 256;
                     }
                 }
             }
         }
         // Render sprites if they're switched on 
-        if (GPU._switchobj) {
+        if (this._switchobj) {
             for (var j = 0; j < 40; j++) {
-                var obj = GPU._objdata[j];
+                var obj = this._objdata[j];
                 
                 // Check if this sprite falls on this scanline
-                if (obj.y <= GPU._line && (obj.y + 8) > GPU._line) {
+                if (obj.y <= this._line && (obj.y + 8) > this._line) {
                     // Palette to use for this sprite
-                    var pal = obj.pal ? GPU._pal.obj1 : GPU._pal.obj0;
+                    var pal = obj.pal ? this._pal.obj1 : this._pal.obj0;
 
                     // Where to render on the canvas
-                    var canvsoffs = (GPU._line * 160 + obj.x) * 4;
+                    var canvsoffs = (this._line * 160 + obj.x) * 4;
 
                     // Data for this line of the sprite
                     var tilerow;
 
                     if (obj.yflip) {
-                        tilerow = GPU._tileset[obj.tile][7 - (GPU._line - obj.y)];
+                        tilerow = this._tileset[obj.tile][7 - (this._line - obj.y)];
                     } else {
-                        tilerow = GPU._tileset[obj.tile][GPU._line - obj.y];
+                        tilerow = this._tileset[obj.tile][this._line - obj.y];
                     }
 
                     var colorobj;
@@ -348,10 +357,10 @@ class GPU {
                             // If the sprite is X-flipped, write pxiels in reverse order
                             colorobj = pal[tilerow[obj.xflip ? (7 - z) : z]];
 
-                            GPU._scrn.data[canvasoffs + 0] = colorobj[0];
-                            GPU._scrn.data[canvasoffs + 1] = colorobj[1];
-                            GPU._scrn.data[canvasoffs + 2] = colorobj[2];
-                            GPU._scrn.data[canvasoffs + 3] = colorobj[3];
+                            this._scrn.data[canvasoffs + 0] = colorobj[0];
+                            this._scrn.data[canvasoffs + 1] = colorobj[1];
+                            this._scrn.data[canvasoffs + 2] = colorobj[2];
+                            this._scrn.data[canvasoffs + 3] = colorobj[3];
 
                             canvasoffs += 4;
                         }
@@ -359,32 +368,35 @@ class GPU {
                 }
             }
         }
-    },
+    }
 
-    buildobjdata: function(addr, val) {
+    buildobjdata(addr, val): void {
         var obj = addr >> 2;
         if (obj < 40) {
             switch (addr & 3) {
                 // Y-coordinate
                 case 0:
-                    GPU._objdata[obj].y = val - 16;
+                    this._objdata[obj].y = val - 16;
                     break;
                 // X-coordinate
                 case 1:
-                    GPU._objdata[obj].x = val - 8;
+                    this._objdata[obj].x = val - 8;
                     break;
                 // Data tile
                 case 2:
-                    GPU._objdata[obj].tile = val;
+                    this._objdata[obj].tile = val;
                     break;
                 // Options    
                 case 3:
-                    GPU._objdata[obj].palette = (val & 0x10) ? 1 : 0;
-                    GPU._objdata[obj].xflip = (val & 0x20) ? 1 : 0;
-                    GPU._objdata[obj].yflip = (val & 0x30) ? 1 : 0;
-                    GPU._objdata[obj].prio = (val & 0x80) ? 1 : 0;
+                    this._objdata[obj].palette = (val & 0x10) ? 1 : 0;
+                    this._objdata[obj].xflip = (val & 0x20) ? 1 : 0;
+                    this._objdata[obj].yflip = (val & 0x30) ? 1 : 0;
+                    this._objdata[obj].prio = (val & 0x80) ? 1 : 0;
                     break;
             }
         }
     }
 }
+
+const instance: GPU = new GPU();
+export default instance;
