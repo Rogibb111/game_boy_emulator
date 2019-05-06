@@ -1,11 +1,11 @@
 
-GPU = {
-    _canvas: {},
-    _scrn: {},
-    _mode: 0,
-    _modeClock: 0,
-    _line: 0,
-    _tileset: [],
+class GPU {
+    _canvas = {};
+    _scrn = {};
+    _mode = 0;
+    _modeClock = 0;
+    _line = 0;
+    _tileset = [];
     _bgmap: 0,
     _scy: 0,
     _scx: 0,
