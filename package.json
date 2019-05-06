@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/Rogibb111/GameBoy-Emulator-Browser#readme",
   "devDependencies": {
-    "eslint": "^5.14.1"
+    "eslint": "^5.14.1",
+    "typescript": "^3.4.5"
   }
 }
