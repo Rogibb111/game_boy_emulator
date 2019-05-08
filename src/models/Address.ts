@@ -3,7 +3,7 @@
 // Currently only logs the address in different
 // bases.
 
-export class Address {
+export default class Address {
     _val = null;
     
     constructor(address: number) {
@@ -24,7 +24,7 @@ export class Address {
 
     printBin() {
         console.log(this._val.toString(2));
-   }
+    }
 
    // Convience AND operator for converting one address into another.
    // Takes in either another Address or an integer value and does
@@ -32,8 +32,18 @@ export class Address {
    AND(address: number): Address;
    AND(address: Address): Address;
    AND(address: any): Address {
+       const numAnd = address.getVal() | address;
+       return new Address(this._val & numAnd);
+   }
+
+   // Convience ADD operator for adding an offest to an address
+   // Takes in either another Address or an integer value and 
+   // does add to this address value 
+   ADD(address: number): Address;
+   ADD(address: Address): Address;
+   ADD(address: any): Address {
        const numAdd = address.getVal() | address;
-       return new Address(this._val & numAdd);
+       return new Address(this._val + numAdd);
    }
 
 
