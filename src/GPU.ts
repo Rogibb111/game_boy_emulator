@@ -1,5 +1,5 @@
 import Address from "./models/Address";
-import MemoryBank from "./models/MemoryBank";
+import MemoryBank, { BankTypes } from "./models/MemoryBank";
 
 class GPU {
     _canvas: CanvasRenderingContext2D = null;
@@ -63,7 +63,7 @@ class GPU {
                 }
             }
 
-	    this._vram = new MemoryBank(8192);
+	    this._vram = new MemoryBank(BankTypes.VRAM);
 
         }
 
