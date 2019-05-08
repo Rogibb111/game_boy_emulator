@@ -1,4 +1,5 @@
-import { Address } from "./models/Address";
+import Address from "./models/Address";
+import MemoryBank from "./models/MemoryBank";
 
 class GPU {
     _canvas: CanvasRenderingContext2D = null;
@@ -10,7 +11,7 @@ class GPU {
     _bgmap = 0;
     _scy = 0;
     _scx = 0;
-    _vram = [];
+    _vram: MemoryBank = null;
     _bgtile = 0;
     _switchbg = 0;
     _switchobj = 0;
@@ -61,7 +62,9 @@ class GPU {
                     this._tileset[i][j] = [0,0,0,0,0,0,0,0];
                 }
             }
- 
+
+	    this._vram = new MemoryBank(8192);
+
         }
 
         //Reset Sprite Memory (OAM)
@@ -99,8 +102,8 @@ class GPU {
 
             // Update tile set
             this._tileset[tile][y][x] = 
-                ((this._vram[baseAddr] & sx) ? 1 : 0) +
-                ((this._vram[baseAddr+1] & sx) ? 2 : 0);
+                ((this._vram.getValue(baseAddr) & sx) ? 1 : 0) +
+                ((this._vram.getValue(baseAddr.ADD(1)) & sx) ? 2 : 0);
         }
     }
 
