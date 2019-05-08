@@ -1,3 +1,4 @@
+import { Address } from "./models/Address";
 
 class GPU {
     _canvas: CanvasRenderingContext2D = null;
@@ -83,13 +84,13 @@ class GPU {
 
     // Takes a value written to VRAM, and updates the internal
     // tile data set
-    updateTile(addr, val): void {
+    updateTile(addr: Address, val: number): void {
         //Get the "base address" for this tile row
-        addr &= 0x1FFE;
+        const baseAddr: Address = addr.AND( 0x1FFE);
 
         //Work out which tile and row has updated
-        var tile = (addr >> 4) & 511;
-        var y = (addr >> 1) & 7;
+        var tile = (baseAddr.getVal() >> 4) & 511;
+        var y = (baseAddr.getVal() >> 1) & 7;
 
         var sx;
         for (var x = 0; x < 8; x += 1) {
@@ -98,8 +99,8 @@ class GPU {
 
             // Update tile set
             this._tileset[tile][y][x] = 
-                ((this._vram[addr] & sx) ? 1 : 0) +
-                ((this._vram[addr+1] & sx) ? 2 : 0);
+                ((this._vram[baseAddr] & sx) ? 1 : 0) +
+                ((this._vram[baseAddr+1] & sx) ? 2 : 0);
         }
     }
 
