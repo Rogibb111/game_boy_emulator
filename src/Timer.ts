@@ -1,45 +1,47 @@
-TIMER = {
-    _clock: {
+import Address from "./models/Address";
+
+class Timer {
+    _clock = {
         main: 0,
         sub: 0,
         div: 0
-    },
+    };
 
-    _reg: {
+    _reg = {
         div: 0,
         tima: 0,
         tma: 0,
         tac: 0,
-    },
+    };
 
-    inc: function() {
+    inc() {
         // Increment by the last opcode's time
-        TIMER._clock.sub += Z80._r.m;
+        this._clock.sub += Z80._r.m;
 
         // No opcode takes longer than 4 M-times,
         // so we need only to check for overflows once
-        if(TIMER._clock.sub >= 4) {
-            TIMER._clock.main++;
-            TIMER._clock.sub -= 4;
+        if(this._clock.sub >= 4) {
+            this._clock.main++;
+            this._clock.sub -= 4;
 
             //The DIV register increments at 1/16th
             //the rate, so keep a count of this
-            TIMER._clock.div++;
-            if (TIMER._reg.div == 16) {
-                TIMER._reg.div =  (TIMER._reg.div + 1) & 255;
-                TIMER._clock.div = 0;
+            this._clock.div++;
+            if (this._reg.div == 16) {
+                this._reg.div =  (this._reg.div + 1) & 255;
+                this._clock.div = 0;
             }
         }
 
         // Check whether a step needs to be made in the timer
-        TIMER.check();
-    },
+        this.check();
+    }
 
-    check: function() {
-        if (TIMER._reg.tac & 4) {
-            if (TIMER._reg.tac & 4) {
+    check() {
+        if (this._reg.tac & 4) {
+            if (this._reg.tac & 4) {
                 let threshold = 0;
-                switch(TIMER._reg.tac & 3) {
+                switch(this._reg.tac & 3) {
                     case 0: 
                         threshold = 64; //4k
                         break;
@@ -54,54 +56,57 @@ TIMER = {
                         break;
                 }
 
-                if (TIMER._clock.main >= threshold) {
-                    TIMER.step();
+                if (this._clock.main >= threshold) {
+                    this.step();
                 }
             }
         }
-    },
+    }
 
-    step: function() {
+    step() {
         // Step the timer up by one
-        TIMER._clock.main = 0;
-        TIMER._reg.tima ++;
+        this._clock.main = 0;
+        this._reg.tima ++;
 
-        if(TIMER._reg.tima > 255) {
+        if(this._reg.tima > 255) {
             // At overlfow, refill with the Modulo,
-            TIMER._reg.tima = TIMER._reg.tma;
+            this._reg.tima = this._reg.tma;
 
             // Flag a timer interrupt to the dispatcher
             MMU._if |= 4;
         }
-    },
+    }
 
-    rb: function(addr) {
-        switch(addr) {
+    rb(addr: Address) {
+        switch(addr.getVal()) {
             case 0xFF04:
-                return TIMER._reg.div;
+                return this._reg.div;
             case 0xFF05:
-                return TIMER._reg.tima;
+                return this._reg.tima;
             case 0xFF06:
-                return TIMER._reg.tma;
+                return this._reg.tma;
             case 0xFF07:
-                return TIMER._reg.tac;
+                return this._reg.tac;
         }
-    },
+    }
 
-    wb: function(addr, val) {
-        switch(addr) {
+    wb(addr: Address, val: number) {
+        switch(addr.getVal()) {
             case 0xFF04:
-                TIMER._reg.div = 0;
+                this._reg.div = 0;
                 break;
             case 0xFF05:
-                TIMER._reg.tima = val;
+                this._reg.tima = val;
                 break;
             case 0xFF06:
-                TIMER._reg.tma = val;
+                this._reg.tma = val;
                 break;
             case 0xFF07:
-                TIMER._reg.tac = val & 7;
+                this._reg.tac = val & 7;
                 break;
         }
     }
 };
+
+const instance = new Timer();
+export default instance;
