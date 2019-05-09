@@ -1,6 +1,7 @@
 import GPU from './GPU';
 import TIMER from './TIMER';
 import Z80 from './Z80';
+import MMU from './MMU';
 
 class GameBoy {
 

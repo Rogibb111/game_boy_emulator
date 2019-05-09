@@ -1,11 +1,18 @@
 import Address from './Address';
 
 export enum BankTypes {
-	VRAM
+	VRAM,
+	WRAM,
+	SRAM,
+	ERAM,
+	ZRAM
 }
 
 const bankProps: Object = {
-	[BankTypes.VRAM]: { size: 8192, offset: 8000 }
+	[BankTypes.VRAM]: { size: 8192, offset: 0x8000 },
+	[BankTypes.ERAM]: { size: 8192, offset: 0xA000 },
+	[BankTypes.WRAM]: { size: 8192, offset: 0xC000 },
+	[BankTypes.SRAM]: { size: 7679, offset: 0xE000 }
 };
 
 export default class MemoryBank {

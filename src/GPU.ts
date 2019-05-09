@@ -1,5 +1,6 @@
-import Address from "./models/Address";
-import MemoryBank, { BankTypes } from "./models/MemoryBank";
+import Address from './models/Address';
+import Z80 from './Z80';
+import MemoryBank, { BankTypes } from './models/MemoryBank';
 
 class GPU {
     _canvas: CanvasRenderingContext2D = null;

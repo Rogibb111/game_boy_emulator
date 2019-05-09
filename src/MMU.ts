@@ -1,10 +1,17 @@
-MMU = {
+import Z80 from './Z80';
+import GPU from './GPU';
+import KEY from './KEY';
+import MemoryBank, { BankTypes } from './models/MemoryBank';
+import Address from './models/Address';
+
+
+class MMU {
     // Flag indicating BIOS is mapped in
     // BIOS is unmapped with the first instruction above 0x00FF
-    _inbios: 1,
+    _inbios = 1;
 
     // Memory regions (initialized at reset time)
-    _bios: [
+    _bios = [
         0x31, 0xFE, 0xFF, 0xAF, 0x21, 0xFF, 0x9F, 0x32, 0xCB, 0x7C, 0x20, 0xFB, 0x21, 0x26, 0xFF, 0x0E,
         0x11, 0x3E, 0x80, 0x32, 0xE2, 0x0C, 0x3E, 0xF3, 0xE2, 0x32, 0x3E, 0x77, 0x77, 0x3E, 0xFC, 0xE0,
         0x47, 0x11, 0x04, 0x01, 0x21, 0x10, 0x80, 0x1A, 0xCD, 0x95, 0x00, 0xCD, 0x96, 0x00, 0x13, 0x7B,
@@ -21,79 +28,79 @@ MMU = {
         0xDD, 0xDC, 0x99, 0x9F, 0xBB, 0xB9, 0x33, 0x3E, 0x3c, 0x42, 0xB9, 0xA5, 0xB9, 0xA5, 0x42, 0x4C,
         0x21, 0x04, 0x01, 0x11, 0xA8, 0x00, 0x1A, 0x13, 0xBE, 0x20, 0xFE, 0x23, 0x7D, 0xFE, 0x34, 0x20,
         0xF5, 0x06, 0x19, 0x78, 0x86, 0x23, 0x05, 0x20, 0xFB, 0x86, 0x20, 0xFE, 0x3E, 0x01, 0xE0, 0x50
-    ],
-    _rom: '',
-    _wram: [],
-    _eram: [],
-    _zram: [],
-    _ie: 0,
-    _if: 0,
+    ];
+    _rom = Uint8Array = null;
+    _wram: MemoryBank = new MemoryBank(BankTypes.WRAM);
+    _eram: MemoryBank = new MemoryBank(BankTypes.ERAM);
+    _zram: MemoryBank = new MemoryBank(BankTypes.ZRAM);
+    _ie = 0;
+    _if = 0;
 
     // MBC states
-     _mbc: [],
+     _mbc = [];
     
     // Offset for second ROM bank
-    _romoffs: 0x4000,
+    _romoffs = 0x4000;
 
     // Offset for RAM bank
-    _ramoffs: 0x000,
+    _ramoffs = 0x000;
 
     // Copy of the ROM's cartridge-type value
-    _carttype: 0,
+    _carttype = 0;
 
     // Read a byte from memory
-    rb: function(addr) {
-        //Look at opcode of instruction (first four bites)
-        switch (addr & 0xF000) {
+    rb(addr: Address) {
+        //Look at opcode of instruction (first four bits)
+        switch (addr.getVal() & 0xF000) {
             // BIOS (256b)/ROM0
             case 0x0000:
-                if (MMU._inbios) {
-                    if (addr < 0x0100) {
-                        return MMU._bios[addr];
+                if (this._inbios) {
+                    if (addr.getVal() < 0x0100) {
+                        return this._bios[addr.getVal()];
                     } else if (Z80._r.pc === 0x0100) {
-                        MMU._inbios = 0;
+                        this._inbios = 0;
                     }
                 }
-                return MMU._rom.charCodeAt(addr);
+                return this._rom.charCodeAt(addr);
 
             // ROM0
             case 0x1000:
             case 0x2000:
             case 0x3000:
-                return MMU._rom.charCodeAt(addr);
+                return this._rom.charCodeAt(addr);
 
             //ROM (switched bank)
             case 0x4000:
             case 0x5000:
             case 0x6000:
             case 0x7000:
-                return MMU._rom.charCodeAt(MMU._romoffs + (addr & 0x3FFF));
+                return this._rom.charCodeAt(this._romoffs + (addr.getVal() & 0x3FFF));
             
             // Graphics: VRAM (8k) 
             case 0x8000:
             case 0x9000:
-                return GPU._vram[addr & 0x1FFF];
+                return GPU._vram.getValue(addr);
 
             // External RAM (8k)
             case 0xA000:
             case 0xB000:
-                return MMU._eram[MMU._ramoffs + (addr & 0x1FFF)];
+                return this._eram[this._ramoffs + (addr & 0x1FFF)];
 
             // Working RAM (8k) 
             case 0xC000:
             case 0xD000:
-                return MMU._wram[addr & 0x1FFF];
+                return this._wram[addr & 0x1FFF];
 
             // Working RAM shadow
             case 0xE000:
-                return MMU._wram[addr & 0x1FFF];
+                return this._wram[addr & 0x1FFF];
             
             // Working RAM shadow, I/0, Zero-page RAM
             case 0xF000:
                 switch (addr & 0x0F00) {
                     case 0x000:
                     case 0xD00:
-                        return MMU._wram[addr & 0x1FFF];
+                        return this._wram[addr & 0x1FFF];
 
                     // Graphics: object attribute memory
                     // OAM is 100 bytes, remaining bytes read as 0
@@ -104,9 +111,9 @@ MMU = {
                         return 0;
                     case 0xF00:
                         if (addr === 0xFFFF ) {
-                            return MMU._ie;
+                            return this._ie;
                         } else if (addr >= 0xFF80) {
-                            return MMU.zram[addr & 0x7F];
+                            return this._zram[addr & 0x7F];
                         } else if (addr >= 0xFF40) {
                             //GPU (64 registers)
                             return GPU.rb(addr);
@@ -116,7 +123,7 @@ MMU = {
                                 //GPU (64 registers)
                                 case 0x00:
                                     if (addr === 0xFF0F) {
-                                        return MMU._if;
+                                        return this._if;
                                     }
                                     switch(addr & 0xF) {
                                         case 0:
@@ -136,27 +143,28 @@ MMU = {
                 }
 
         }
-    },
+    }
 
     //Read a 16-bit word
-    rw: function(addr) {
-        return MMU.rb(addr) + (MMU.rb(addr+1) << 8);
-    },
-    wb: function(addr, val) {
+    rw(addr) {
+        return this.rb(addr) + (this.rb(addr+1) << 8);
+    }
+
+    wb(addr, val) {
         switch(addr & 0xF000) {
             // MBC1: External Ram Switch
             case 0x0000:
             case 0x1000:
-                switch(MMU._carttype) {
+                switch(this._carttype) {
                     case 2:
                     case 3:
-                        MMU._mbc[1].ramon = ((val & 0x0F) == 0x0A) ? 1 : 0;
+                        this._mbc[1].ramon = ((val & 0x0F) == 0x0A) ? 1 : 0;
                 }
                 break;
             // MBC1: ROM bank
             case 0x2000:
             case 0x3000:
-                switch(MMU._carttype) {
+                switch(this._carttype) {
                     case 1:
                     case 2:
                     case 3:
@@ -165,37 +173,37 @@ MMU = {
                         if (!val) {
                             val = 1;
                         }
-                        MMU._mbc[1].rombank = (MMU._mbc[1].rombank & 0x60) + val;
+                        this._mbc[1].rombank = (this._mbc[1].rombank & 0x60) + val;
 
                         // Calculate ROM offset from bank
-                        MMU._romoffs = MMU._mbc[1].rombank * 0x4000;
+                        this._romoffs = this._mbc[1].rombank * 0x4000;
                         break;
                 }
                 break;
             case 0x4000:
             case 0x5000:
-                switch(MMU._carttype) {
+                switch(this._carttype) {
                     case 1:
                     case 2:
                     case 3:
-                        if(MMU._mbc[1].mode) {
+                        if(this._mbc[1].mode) {
                             // RAM mode: Set bank
-                            MMU._mbc[1].rambank = val & 3;
-                            MMU._ramoffs = MMU._mbc[1].rambank * 0x2000;
+                            this._mbc[1].rambank = val & 3;
+                            this._ramoffs = this._mbc[1].rambank * 0x2000;
                         } else {
                             // ROM mode: Set high bits of bank
-                            MMU._mbc[1].rombank = (MMU._mbc[1].rombank & 0x1F) + ((val & 3) << 5);
-                            MMU._romoffs = MMU._mbc[1].rombank * 0x4000;
+                            this._mbc[1].rombank = (this._mbc[1].rombank & 0x1F) + ((val & 3) << 5);
+                            this._romoffs = this._mbc[1].rombank * 0x4000;
                         }
                         break;
                 }
                 break;
             case 0x6000:
             case 0x7000:
-                switch(MMU._carttype) {
+                switch(this._carttype) {
                     case 2:
                     case 3:
-                        MMU._mbc[1].mode = val & 1;
+                        this._mbc[1].mode = val & 1;
                         break;
                 }
                 break;
@@ -208,7 +216,7 @@ MMU = {
             // External RAM
             case 0xA000:
             case 0xB000:
-                MMU._eram[MMU._ramoffs + (addr & 0x1FFF)] = val;
+                this._eram[this._ramoffs + (addr & 0x1FFF)] = val;
                 break;
             case 0xF000:
                 switch(addr & 0x0F00) {
@@ -216,12 +224,12 @@ MMU = {
                         if(addr < 0xFEA0) {
                             GPU._oam[addr & 0xFF] = val;
                         }
-                        GPU.buildobjectdata(addr - 0xFE00, val);
+                        GPU.buildobjdata(addr - 0xFE00, val);
                         break;
                         // Zero-page
                     case 0xF00:
                         if(addr >= 0xFF80) {
-                            MMU._zram[addr & 0x7F] = val;
+                            this._zram[addr & 0x7F] = val;
                         } else {
                             // I/O 
                             switch(addr & 0x00F0) {
@@ -237,39 +245,42 @@ MMU = {
                 }
                 break;
         }       
-    },
-    ww: function() { 
+    }
+    ww() { 
         /* Write 16-bit word to a given address */ 
-    },
+    }
 
-    load: function(rom) {
+    load(rom) {
         const reader = new FileReader();
 
         reader.onload = () => {
-            MMU._rom = reader.result;
+            this._rom = reader.result;
         }
 
         reader.readAsBinaryString(rom);
 
-        MMU._carttype = MMU._rom.charCodeAt(0x0147);
-    },
+        this._carttype = this._rom.charCodeAt(0x0147);
+    }
 
-    reset: function() {
-        this._rom = '';
-        this._wram = [];
-        this._eram = [];
-        this._zram = [];
+    reset() {
+        this._rom = null;
+        this._wram = new MemoryBank(BankTypes.WRAM);
+        this._eram = new MemoryBank(BankTypes.ERAM);
+        this._zram = new MemoryBank(BankTypes.ZRAM);
         this._inbios = 1 ;
 
         //initialize MBC internal data
-        MMU._mbc[0] = {};
-        MMU._mbc[1] = {
+        this._mbc[0] = {};
+        this._mbc[1] = {
             rombank: 0,     // Selected ROM bank
             rambank: 0,     // Selected RAM bank
             ramon: 0,       // RAM enable switch
             mode: 0         // ROM/RAM expansion mode
         };
-        MMU._romoffs = 0x4000;
-        MMU._ramoffs = 0x0000;
+        this._romoffs = 0x4000;
+        this._ramoffs = 0x0000;
     }
 };
+
+const instance: MMU = new MMU();
+export default instance;
