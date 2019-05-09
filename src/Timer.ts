@@ -1,6 +1,7 @@
-import Address from "./models/Address";
+import Address from './models/Address';
+import Z80 from './Z80';
 
-class Timer {
+class TIMER {
     _clock = {
         main: 0,
         sub: 0,
@@ -108,5 +109,5 @@ class Timer {
     }
 };
 
-const instance = new Timer();
+const instance = new TIMER();
 export default instance;

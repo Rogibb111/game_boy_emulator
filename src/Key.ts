@@ -1,4 +1,4 @@
-class Key {
+class KEY {
     _rows = [0x0F, 0x0F];
     _column = 0;
 
@@ -83,7 +83,9 @@ class Key {
     }
 };
 
-const instance: Key = new Key();
+const instance: KEY = new KEY();
 
 window.onkeydown = instance.kdown;
 window.onkeyup = instance.kup;
+
+export default instance;
