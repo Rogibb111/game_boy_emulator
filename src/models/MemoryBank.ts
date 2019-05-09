@@ -4,21 +4,22 @@ export enum BankTypes {
 	VRAM
 }
 
-const bankSizes: Object = {
-	[BankTypes.VRAM]: 8192
+const bankProps: Object = {
+	[BankTypes.VRAM]: { size: 8192, offset: 8000 }
 };
 
 export default class MemoryBank {
 	
 	private _bank: ArrayBuffer;
-	private _type: BankTypes;
+    private _offset: number;
 	
 	constructor(type: BankTypes) {
-		this._bank = new Uint8Array(bankSizes[type]);
-		this._type = type;
+        const { size, offset } = bankProps[type];
+		this._bank = new Uint8Array(size);
+        this._offset = offset;
 	}
 
 	getValue(address: Address): number {
-		return this._bank[address.getVal()];
-	}
+		return this._bank[address.getVal() - this._offset];
+    }
 }
