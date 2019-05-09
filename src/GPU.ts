@@ -95,7 +95,7 @@ class GPU {
         var tile = (baseAddr.getVal() >> 4) & 511;
         var y = (baseAddr.getVal() >> 1) & 7;
 
-        var sx;
+        let sx: number;
         for (var x = 0; x < 8; x += 1) {
             // Find bit index for this pixel
             sx = 1 << (7 - x);
@@ -107,8 +107,8 @@ class GPU {
         }
     }
 
-    rb(addr): number { 
-        switch(addr) {
+    rb(addr: Address): number { 
+        switch(addr.getVal()) {
             case 0xFF40:
                 return  (this._switchbg  ? 0x01 : 0x00) |
                         (this._switchobj ? 0x02 : 0x00) |
@@ -129,8 +129,8 @@ class GPU {
         }
     }
 
-    wb(addr, val): void {
-        switch(addr) {
+    wb(addr: Address, val: number): void {
+        switch(addr.getVal()) {
             //LCD Control
             case 0xFF40:
                 this._switchbg   = (val & 0x01) ? 1 : 0;
@@ -275,11 +275,11 @@ class GPU {
 
     renderScan(): void {
         // Scanline data, for use by sprite renderer
-        var scanrow = [];
+        const scanrow = [];
 
         if (this._switchbg) {
             // VRAM offset for the tile map
-            var mapoffs = this._bgmap ? 0x1C00 : 0x1800;
+            let mapoffs = this._bgmap ? 0x1C00 : 0x1800;
 
             // Which line of tiles to use in the map
             mapoffs += ((this._line + this._scy) & 255) >> 3;
@@ -297,7 +297,7 @@ class GPU {
             var canvasoffs = this._line * 180 * 4;
 
             // Read tile index from the background map
-            var color;
+            let color: number;
             var tile = this._vram[mapoffs + lineoffs];
 
             // If the tile data set in use is #1, the indices are
@@ -343,7 +343,7 @@ class GPU {
                     var canvsoffs = (this._line * 160 + obj.x) * 4;
 
                     // Data for this line of the sprite
-                    var tilerow;
+                    let tilerow: number;
 
                     if (obj.yflip) {
                         tilerow = this._tileset[obj.tile][7 - (this._line - obj.y)];
@@ -351,7 +351,7 @@ class GPU {
                         tilerow = this._tileset[obj.tile][this._line - obj.y];
                     }
 
-                    var colorobj;
+                    let colorobj: number;
 
                     for (var z = 0; z < 8; z++) {
                         // If this pixel is still on-screen, AND if it's not color 0 (transparent),
@@ -374,10 +374,10 @@ class GPU {
         }
     }
 
-    buildobjdata(addr, val): void {
-        var obj = addr >> 2;
+    buildobjdata(addr: Address, val: number): void {
+        var obj = addr.getVal() >> 2;
         if (obj < 40) {
-            switch (addr & 3) {
+            switch (addr.getVal() & 3) {
                 // Y-coordinate
                 case 0:
                     this._objdata[obj].y = val - 16;
