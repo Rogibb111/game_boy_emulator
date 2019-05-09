@@ -13,6 +13,7 @@ class GPU {
     _scy = 0;
     _scx = 0;
     _vram: MemoryBank = null;
+    _oam: MemoryBank = null;;
     _bgtile = 0;
     _switchbg = 0;
     _switchobj = 0;
@@ -22,7 +23,6 @@ class GPU {
         obj0: [],
         obj1: []
     };
-    _oam = [];
     _objdata = [];
 
     constructor() {
@@ -64,7 +64,8 @@ class GPU {
                 }
             }
 
-	    this._vram = new MemoryBank(BankTypes.VRAM);
+        this._vram = new MemoryBank(BankTypes.VRAM);
+        this._oam = new MemoryBank(BankTypes.OAM);
 
         }
 
@@ -376,9 +377,11 @@ class GPU {
     }
 
     buildobjdata(addr: Address, val: number): void {
-        var obj = addr.getVal() >> 2;
+        const addrVal = addr.getVal();
+        const obj = (addrVal - 0xFE00) >> 2;
+
         if (obj < 40) {
-            switch (addr.getVal() & 3) {
+            switch (addrVal & 3) {
                 // Y-coordinate
                 case 0:
                     this._objdata[obj].y = val - 16;

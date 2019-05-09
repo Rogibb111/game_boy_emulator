@@ -33,6 +33,7 @@ class MMU {
     _wram: MemoryBank = new MemoryBank(BankTypes.WRAM);
     _eram: MemoryBank = new MemoryBank(BankTypes.ERAM);
     _zram: MemoryBank = new MemoryBank(BankTypes.ZRAM);
+    _sram: MemoryBank = new MemoryBank(BankTypes.SRAM);
     _ie = 0;
     _if = 0;
 
@@ -50,13 +51,14 @@ class MMU {
 
     // Read a byte from memory
     rb(addr: Address) {
+        const addrVal = addr.getVal();
         //Look at opcode of instruction (first four bits)
-        switch (addr.getVal() & 0xF000) {
+        switch (addrVal() & 0xF000) {
             // BIOS (256b)/ROM0
             case 0x0000:
                 if (this._inbios) {
-                    if (addr.getVal() < 0x0100) {
-                        return this._bios[addr.getVal()];
+                    if (addrVal() < 0x0100) {
+                        return this._bios[addrVal()];
                     } else if (Z80._r.pc === 0x0100) {
                         this._inbios = 0;
                     }
@@ -74,7 +76,7 @@ class MMU {
             case 0x5000:
             case 0x6000:
             case 0x7000:
-                return this._rom.charCodeAt(this._romoffs + (addr.getVal() & 0x3FFF));
+                return this._rom.charCodeAt(this._romoffs + (addrVal() & 0x3FFF));
             
             // Graphics: VRAM (8k) 
             case 0x8000:
@@ -84,48 +86,47 @@ class MMU {
             // External RAM (8k)
             case 0xA000:
             case 0xB000:
-                return this._eram[this._ramoffs + (addr & 0x1FFF)];
+                return this._eram.getValue(addr.ADD(this._ramoffs));
 
             // Working RAM (8k) 
             case 0xC000:
             case 0xD000:
-                return this._wram[addr & 0x1FFF];
-
+                return this._wram.getValue(addr);
             // Working RAM shadow
             case 0xE000:
-                return this._wram[addr & 0x1FFF];
+                return this._sram.getValue(addr);
             
             // Working RAM shadow, I/0, Zero-page RAM
             case 0xF000:
-                switch (addr & 0x0F00) {
+                switch (addrVal() & 0x0F00) {
                     case 0x000:
                     case 0xD00:
-                        return this._wram[addr & 0x1FFF];
+                        return this._wram.getValue(addr);
 
                     // Graphics: object attribute memory
                     // OAM is 100 bytes, remaining bytes read as 0
                     case 0xE00:
-                        if(addr < 0xFEA0) {
-                            return GPU._oam[addr & 0xFF];
+                        if(addrVal() < 0xFEA0) {
+                            return GPU._oam.getValue(addr);
                         }                            
                         return 0;
                     case 0xF00:
-                        if (addr === 0xFFFF ) {
+                        if (addrVal() === 0xFFFF ) {
                             return this._ie;
-                        } else if (addr >= 0xFF80) {
-                            return this._zram[addr & 0x7F];
-                        } else if (addr >= 0xFF40) {
+                        } else if (addrVal() >= 0xFF80) {
+                            return this._zram.getValue(addr);
+                        } else if (addrVal() >= 0xFF40) {
                             //GPU (64 registers)
                             return GPU.rb(addr);
                         }
                         else {
-                            switch(addr & 0x00F0) {
+                            switch(addrVal & 0x00F0) {
                                 //GPU (64 registers)
                                 case 0x00:
-                                    if (addr === 0xFF0F) {
+                                    if (addrVal === 0xFF0F) {
                                         return this._if;
                                     }
-                                    switch(addr & 0xF) {
+                                    switch(addrVal & 0xF) {
                                         case 0:
                                             return KEY.rb();
                                         default:
@@ -146,12 +147,13 @@ class MMU {
     }
 
     //Read a 16-bit word
-    rw(addr) {
-        return this.rb(addr) + (this.rb(addr+1) << 8);
+    rw(addr: Address) {
+        return this.rb(addr) + (this.rb(addr.ADD(1)) << 8);
     }
 
-    wb(addr, val) {
-        switch(addr & 0xF000) {
+    wb(addr: Address, val: number) {
+        const addrVal = addr.getVal();
+        switch(addrVal & 0xF000) {
             // MBC1: External Ram Switch
             case 0x0000:
             case 0x1000:
@@ -210,34 +212,34 @@ class MMU {
             // Only the VRAM case is shown:
             case 0x8000:
             case 0x9000:
-                GPU._vram[addr & 0x1FFF] = val;
-                GPU.updateTile(addr, val);
+                GPU._vram.setValue(addr, val);
+                GPU.updateTile(addrVal, val);
                 break;
             // External RAM
             case 0xA000:
             case 0xB000:
-                this._eram[this._ramoffs + (addr & 0x1FFF)] = val;
+                this._eram[this._ramoffs + (addrVal & 0x1FFF)] = val;
                 break;
             case 0xF000:
-                switch(addr & 0x0F00) {
+                switch(addrVal & 0x0F00) {
                     case 0xE00:
-                        if(addr < 0xFEA0) {
-                            GPU._oam[addr & 0xFF] = val;
+                        if(addrVal < 0xFEA0) {
+                            GPU._oam[addrVal & 0xFF] = val;
                         }
-                        GPU.buildobjdata(addr - 0xFE00, val);
+                        GPU.buildobjdata(addrVal, val);
                         break;
                         // Zero-page
                     case 0xF00:
-                        if(addr >= 0xFF80) {
-                            this._zram[addr & 0x7F] = val;
+                        if(addrVal >= 0xFF80) {
+                            this._zram[addrVal & 0x7F] = val;
                         } else {
                             // I/O 
-                            switch(addr & 0x00F0) {
+                            switch(addrVal & 0x00F0) {
                                 case 0x40:
                                 case 0x50:
                                 case 0x60:
                                 case 0x70:
-                                    GPU.wb(addr, val);
+                                    GPU.wb(addrVal, val);
                                     break;
                             }
                         }
