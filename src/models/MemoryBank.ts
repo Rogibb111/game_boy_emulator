@@ -5,14 +5,18 @@ export enum BankTypes {
 	WRAM,
 	SRAM,
 	ERAM,
-	ZRAM
+	ZRAM,
+	OAM
 }
 
 const bankProps: Object = {
 	[BankTypes.VRAM]: { size: 8192, offset: 0x8000 },
 	[BankTypes.ERAM]: { size: 8192, offset: 0xA000 },
 	[BankTypes.WRAM]: { size: 8192, offset: 0xC000 },
-	[BankTypes.SRAM]: { size: 7679, offset: 0xE000 }
+	[BankTypes.SRAM]: { size: 7679, offset: 0xE000 },
+	[BankTypes.ZRAM]: { size: 127, offset: 0xFF89 },
+	[BankTypes.OAM]: { size: 149, offset: 0xFE00 }
+
 };
 
 export default class MemoryBank {
@@ -28,5 +32,9 @@ export default class MemoryBank {
 
 	getValue(address: Address): number {
 		return this._bank[address.getVal() - this._offset];
-    }
+	}
+	
+	setValue(address: Address, val: number): void {
+		this._bank[address.getVal()-this._offset] = val;
+	}
 }
