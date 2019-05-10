@@ -29,11 +29,11 @@ class MMU {
         0x21, 0x04, 0x01, 0x11, 0xA8, 0x00, 0x1A, 0x13, 0xBE, 0x20, 0xFE, 0x23, 0x7D, 0xFE, 0x34, 0x20,
         0xF5, 0x06, 0x19, 0x78, 0x86, 0x23, 0x05, 0x20, 0xFB, 0x86, 0x20, 0xFE, 0x3E, 0x01, 0xE0, 0x50
     ];
-    _rom = Uint8Array = null;
-    _wram: MemoryBank = new MemoryBank(BankTypes.WRAM);
-    _eram: MemoryBank = new MemoryBank(BankTypes.ERAM);
-    _zram: MemoryBank = new MemoryBank(BankTypes.ZRAM);
-    _sram: MemoryBank = new MemoryBank(BankTypes.SRAM);
+    _rom: Uint8Array;
+    _wram: MemoryBank;
+    _eram: MemoryBank; 
+    _zram: MemoryBank;
+    _sram: MemoryBank;
     _ie = 0;
     _if = 0;
 
@@ -47,36 +47,40 @@ class MMU {
     _ramoffs = 0x000;
 
     // Copy of the ROM's cartridge-type value
-    _carttype = 0;
+    _carttype = 0;i
+
+    constructor() {
+        this.reset();
+    }
 
     // Read a byte from memory
     rb(addr: Address) {
         const addrVal = addr.getVal();
         //Look at opcode of instruction (first four bits)
-        switch (addrVal() & 0xF000) {
+        switch (addrVal & 0xF000) {
             // BIOS (256b)/ROM0
             case 0x0000:
                 if (this._inbios) {
-                    if (addrVal() < 0x0100) {
-                        return this._bios[addrVal()];
+                    if (addrVal < 0x0100) {
+                        return this._bios[addrVal];
                     } else if (Z80._r.pc === 0x0100) {
                         this._inbios = 0;
                     }
                 }
-                return this._rom.charCodeAt(addr);
+                return this._rom[addrVal];
 
             // ROM0
             case 0x1000:
             case 0x2000:
             case 0x3000:
-                return this._rom.charCodeAt(addr);
+                return this._rom[addrVal];
 
             //ROM (switched bank)
             case 0x4000:
             case 0x5000:
             case 0x6000:
             case 0x7000:
-                return this._rom.charCodeAt(this._romoffs + (addrVal() & 0x3FFF));
+                return this._rom[this._romoffs + (addrVal & 0x3FFF)];
             
             // Graphics: VRAM (8k) 
             case 0x8000:
@@ -111,11 +115,11 @@ class MMU {
                         }                            
                         return 0;
                     case 0xF00:
-                        if (addrVal() === 0xFFFF ) {
+                        if (addrVal === 0xFFFF ) {
                             return this._ie;
-                        } else if (addrVal() >= 0xFF80) {
+                        } else if (addrVal >= 0xFF80) {
                             return this._zram.getValue(addr);
-                        } else if (addrVal() >= 0xFF40) {
+                        } else if (addrVal >= 0xFF40) {
                             //GPU (64 registers)
                             return GPU.rb(addr);
                         }
@@ -223,15 +227,15 @@ class MMU {
             case 0xF000:
                 switch(addrVal & 0x0F00) {
                     case 0xE00:
-                        if(addrVal < 0xFEA0) {
-                            GPU._oam[addrVal & 0xFF] = val;
+                        if (addrVal < 0xFEA0) {
+                            GPU._oam.setValue(addr.AND(0xFF), val);
                         }
-                        GPU.buildobjdata(addrVal, val);
+                        GPU.buildobjdata(addr, val);
                         break;
                         // Zero-page
                     case 0xF00:
-                        if(addrVal >= 0xFF80) {
-                            this._zram[addrVal & 0x7F] = val;
+                        if (addrVal >= 0xFF80) {
+                            this._zram.setValue(addr.AND(0x75), val);
                         } else {
                             // I/O 
                             switch(addrVal & 0x00F0) {
@@ -239,7 +243,7 @@ class MMU {
                                 case 0x50:
                                 case 0x60:
                                 case 0x70:
-                                    GPU.wb(addrVal, val);
+                                    GPU.wb(addr, val);
                                     break;
                             }
                         }
@@ -247,6 +251,7 @@ class MMU {
                 }
                 break;
         }       
+        
     }
     ww() { 
         /* Write 16-bit word to a given address */ 
@@ -256,12 +261,13 @@ class MMU {
         const reader = new FileReader();
 
         reader.onload = () => {
-            this._rom = reader.result;
+            const result: ArrayBuffer = <ArrayBuffer>reader.result;
+            this._rom = new Uint8Array(result);
         }
 
-        reader.readAsBinaryString(rom);
+        reader.readAsArrayBuffer(rom);
 
-        this._carttype = this._rom.charCodeAt(0x0147);
+        this._carttype = this._rom[0x0147];
     }
 
     reset() {
@@ -269,6 +275,7 @@ class MMU {
         this._wram = new MemoryBank(BankTypes.WRAM);
         this._eram = new MemoryBank(BankTypes.ERAM);
         this._zram = new MemoryBank(BankTypes.ZRAM);
+        this._sram = new MemoryBank(BankTypes.SRAM);
         this._inbios = 1 ;
 
         //initialize MBC internal data
