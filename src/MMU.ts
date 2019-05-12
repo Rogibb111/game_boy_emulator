@@ -90,7 +90,7 @@ class MMU {
             // External RAM (8k)
             case 0xA000:
             case 0xB000:
-                return this._eram.getValue(addr.ADD(this._ramoffs));
+                return this._eram.getValue(addr);
 
             // Working RAM (8k) 
             case 0xC000:
@@ -194,8 +194,8 @@ class MMU {
                     case 3:
                         if(this._mbc[1].mode) {
                             // RAM mode: Set bank
-                            this._mbc[1].rambank = val & 3;
-                            this._ramoffs = this._mbc[1].rambank * 0x2000;
+                            this._eram.setActiveBank(val & 3);
+                            
                         } else {
                             // ROM mode: Set high bits of bank
                             this._mbc[1].rombank = (this._mbc[1].rombank & 0x1F) + ((val & 3) << 5);
