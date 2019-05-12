@@ -1,5 +1,17 @@
+/*
+ * Memory Bank: A class for simulating the different types
+ * of memory in the GameBoy. It is used by creating a new
+ * instance and passing in one of the bank-types from the 
+ * exported enums. Then you can read and write to the 
+ * bank using Addresses. 
+ */
+
 import Address from './Address';
 
+/*
+ * An enum to represent all of the different types of memory.
+ * Used as an argument to the MemoryBank class.
+ */
 export enum BankTypes {
     VRAM,
     WRAM,
@@ -9,6 +21,11 @@ export enum BankTypes {
     OAM
 }
 
+/*
+ * A map used by the MemoryBank constructor to fill in some
+ * of the properies of each memory type. These props are 
+ * needed when conducting read and writes.
+ */
 const bankProps: Object = {
     [BankTypes.VRAM]: { bankSize: 8192, offset: 0x8000 },
     [BankTypes.ERAM]: { bankSize: 8192, offset: 0xA000 },
@@ -21,10 +38,10 @@ const bankProps: Object = {
 
 export default class MemoryBank {
 	
-    private _bank: ArrayBuffer | ArrayBuffer[];
-    private _offset: number;
-    private _numOfBanks: number = 0;
-    private _activeBank: number = 0;
+    private _bank: ArrayBuffer | ArrayBuffer[]; // Either single bank or an array of banks
+    private _offset: number; // The first address in memory that this bank starts to represent
+    private _numOfBanks: number = 0; // For ERAM and ROM, detirmines the number of banks 
+    private _activeBank: number = 0; // For ERAM and ROM, detirmines the active bank
 
     constructor(bankType: BankTypes);
     constructor(bankType: BankTypes, size: number);
