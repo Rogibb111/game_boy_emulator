@@ -18,7 +18,9 @@ export enum BankTypes {
     SRAM,
     ERAM,
     ZRAM,
-    OAM
+    OAM,
+    ROM0,
+    ROM1
 }
 
 /*
@@ -32,8 +34,9 @@ const bankProps: Object = {
     [BankTypes.WRAM]: { bankSize: 8192, offset: 0xC000 },
     [BankTypes.SRAM]: { bankSize: 7679, offset: 0xE000 },
     [BankTypes.ZRAM]: { bankSize: 127, offset: 0xFF89 },
-    [BankTypes.OAM]: { bankSize: 149, offset: 0xFE00 }
-
+    [BankTypes.OAM]: { bankSize: 149, offset: 0xFE00 },
+    [BankTypes.ROM0]: { bankSize: 16384, offset: 0x0000 },
+    [BankTypes.ROM1]: { bankSize: 16384, offset: 0x4000 }
 };
 
 export default class MemoryBank {
@@ -43,22 +46,45 @@ export default class MemoryBank {
     private _numOfBanks: number = 0; // For ERAM and ROM, detirmines the number of banks 
     private _activeBank: number = 0; // For ERAM and ROM, detirmines the active bank
 
-    constructor(bankType: BankTypes);
-    constructor(bankType: BankTypes, size: number);
-    constructor(bankType: any, size?: any) {
+    /*
+     * Constructor can take in either just a bank-type for regular dedicated ram (working ram,
+     * I/O registers, etc), a bank-type and size if its the ERAM, or a bank-type and a Uint8array
+     * with Rom data. The last two are special cases because the can be manipulated by the MBC.
+     * Because of that, they have multiple banks that either need to be initialized with typed
+     * arrays, or with acutal rom data (in typed arrays);
+     */
+    constructor(bankType: BankTypes); // Most types
+    constructor(bankType: BankTypes, size: number); // ERAM
+    constructor(bankType: BankTypes, rom: Uint8Array); //ROM
+    constructor(bankType: any, size?: any, rom?: any) {
         const { bankSize, offset } = bankProps[bankType];
 
-        if (size) {
-            this._numOfBanks = Math.ceil(size / bankSize);
-            this._bank = new Array(this._numOfBanks);
-            
-            for (let x = 0; x < this._numOfBanks; x += 1) {
-                this._bank[x] = new Uint8Array(bankSize);
-            }
-        } else {
-            this._bank = new Uint8Array(bankSize);
+        switch(bankType) {
+            case BankTypes.ERAM:
+                this._numOfBanks = Math.ceil(size / bankSize);
+                this._bank = new Array(this._numOfBanks);
+                
+                for (let bankNum = 0; bankNum < this._numOfBanks; bankNum += 1) {
+                    this._bank[bankNum] = new Uint8Array(bankSize);
+                }   
+                break;
+            case BankTypes.ROM0:
+                this._bank = rom;
+                break;
+            case BankTypes.ROM1:
+                this._numOfBanks = Math.ceil(rom.length / bankSize);
+                this._bank = new Array(this._numOfBanks);
+
+                for (let bankNum = 0; bankNum < this._numOfBanks; bankNum += 1) {
+                    const start = (bankNum * bankSize) + offset;
+                    const end = (start + bankSize);
+                    
+                    this._bank[bankNum] = rom.slice(start, end);
+                }   
+                break;
+            default:
+                this._bank = new Uint8Array(bankSize);
         }
-        
         this._offset = offset;
     }
 

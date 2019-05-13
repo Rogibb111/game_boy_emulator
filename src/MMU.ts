@@ -4,6 +4,7 @@ import KEY from './KEY';
 import MemoryBank, { BankTypes } from './models/MemoryBank';
 import Address from './models/Address';
 
+const CART_TYPE_ADDR = new Address(0x0147);
 
 class MMU {
     // Flag indicating BIOS is mapped in
@@ -29,7 +30,8 @@ class MMU {
         0x21, 0x04, 0x01, 0x11, 0xA8, 0x00, 0x1A, 0x13, 0xBE, 0x20, 0xFE, 0x23, 0x7D, 0xFE, 0x34, 0x20,
         0xF5, 0x06, 0x19, 0x78, 0x86, 0x23, 0x05, 0x20, 0xFB, 0x86, 0x20, 0xFE, 0x3E, 0x01, 0xE0, 0x50
     ];
-    _rom: Uint8Array;
+    _rom0: MemoryBank;
+    _rom1: MemoryBank;
     _wram: MemoryBank;
     _eram: MemoryBank; 
     _zram: MemoryBank;
@@ -67,20 +69,20 @@ class MMU {
                         this._inbios = 0;
                     }
                 }
-                return this._rom[addrVal];
+                return this._rom0.getValue(addr);
 
             // ROM0
             case 0x1000:
             case 0x2000:
             case 0x3000:
-                return this._rom[addrVal];
+                return this._rom0.getValue(addr);
 
             //ROM (switched bank)
             case 0x4000:
             case 0x5000:
             case 0x6000:
             case 0x7000:
-                return this._rom[this._romoffs + (addrVal & 0x3FFF)];
+                return this._rom1.getValue(addr);
             
             // Graphics: VRAM (8k) 
             case 0x8000:
@@ -180,9 +182,7 @@ class MMU {
                             val = 1;
                         }
                         this._mbc[1].rombank = (this._mbc[1].rombank & 0x60) + val;
-
-                        // Calculate ROM offset from bank
-                        this._romoffs = this._mbc[1].rombank * 0x4000;
+                        this._rom1.setActiveBank(this._mbc[1].rombank);
                         break;
                 }
                 break;
@@ -199,7 +199,7 @@ class MMU {
                         } else {
                             // ROM mode: Set high bits of bank
                             this._mbc[1].rombank = (this._mbc[1].rombank & 0x1F) + ((val & 3) << 5);
-                            this._romoffs = this._mbc[1].rombank * 0x4000;
+                            this._rom1.setActiveBank(this._mbc[1].rombank);
                         }
                         break;
                 }
@@ -251,27 +251,34 @@ class MMU {
                 }
                 break;
         }       
-        
     }
     ww() { 
         /* Write 16-bit word to a given address */ 
     }
-
+    /*
+     * Load rom: this pulls in the Rom as an array-buffer from game file. The onload
+     * callback is called when the game as loaded to said array-bugger. Then the rom 
+     * is split up into two seperate banks, one bank for the first 16k of the rom (
+     * the static rom bank) and one bank for the rest of the rom (which is controlled
+     * by the MBC). Then it grabs the cartridge type from the loaded rom.
+     */ 
     load(rom) {
         const reader = new FileReader();
 
         reader.onload = () => {
             const result: ArrayBuffer = <ArrayBuffer>reader.result;
-            this._rom = new Uint8Array(result);
+            
+            this._rom0 = new MemoryBank(BankTypes.ROM0, <Uint8Array>result.slice(0, 16384));
+            this._rom1 = new MemoryBank(BankTypes.ROM1, <Uint8Array>result.slice(16385, -1));
+            this._carttype = this._rom1.getValue(CART_TYPE_ADDR);
         }
 
         reader.readAsArrayBuffer(rom);
-
-        this._carttype = this._rom[0x0147];
     }
 
     reset() {
-        this._rom = null;
+        this._rom0 = null;
+        this._rom1 = null;
         this._wram = new MemoryBank(BankTypes.WRAM);
         this._eram = new MemoryBank(BankTypes.ERAM);
         this._zram = new MemoryBank(BankTypes.ZRAM);
