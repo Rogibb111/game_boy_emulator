@@ -3,6 +3,7 @@ import GPU from './GPU';
 import KEY from './KEY';
 import MemoryBank, { BankTypes } from './models/MemoryBank';
 import Address from './models/Address';
+import MBC from './models/MBC';
 
 const CART_TYPE_ADDR = new Address(0x0147);
 
@@ -40,7 +41,7 @@ class MMU {
     _if = 0;
 
     // MBC states
-     _mbc = [];
+     _mbc: MBC; 
     
     // Offset for second ROM bank
     _romoffs = 0x4000;
@@ -166,7 +167,7 @@ class MMU {
                 switch(this._carttype) {
                     case 2:
                     case 3:
-                        this._mbc[1].ramon = ((val & 0x0F) == 0x0A) ? 1 : 0;
+                        this._mbc.setRamOn(val);
                 }
                 break;
             // MBC1: ROM bank
@@ -176,13 +177,7 @@ class MMU {
                     case 1:
                     case 2:
                     case 3:
-                        // Set lower 5 bits of ROM bank (skipping #0)
-                        val &= 0x1F;
-                        if (!val) {
-                            val = 1;
-                        }
-                        this._mbc[1].rombank = (this._mbc[1].rombank & 0x60) + val;
-                        this._rom1.setActiveBank(this._mbc[1].rombank);
+                        this._mbc.setActiveRomBank(val);
                         break;
                 }
                 break;
@@ -192,14 +187,11 @@ class MMU {
                     case 1:
                     case 2:
                     case 3:
-                        if(this._mbc[1].mode) {
+                        if(this._mbc.getMode()) {
                             // RAM mode: Set bank
-                            this._eram.setActiveBank(val & 3);
-                            
+                            this._mbc.setActiveRam(val); 
                         } else {
-                            // ROM mode: Set high bits of bank
-                            this._mbc[1].rombank = (this._mbc[1].rombank & 0x1F) + ((val & 3) << 5);
-                            this._rom1.setActiveBank(this._mbc[1].rombank);
+                            this._mbc.setActiveRomBankSet(val); 
                         }
                         break;
                 }
@@ -286,15 +278,7 @@ class MMU {
         this._inbios = 1 ;
 
         //initialize MBC internal data
-        this._mbc[0] = {};
-        this._mbc[1] = {
-            rombank: 0,     // Selected ROM bank
-            rambank: 0,     // Selected RAM bank
-            ramon: 0,       // RAM enable switch
-            mode: 0         // ROM/RAM expansion mode
-        };
-        this._romoffs = 0x4000;
-        this._ramoffs = 0x0000;
+        this._mbc = null;
     }
 };
 

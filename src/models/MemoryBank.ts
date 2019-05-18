@@ -7,7 +7,7 @@
  */
 
 import Address from './Address';
-
+import MBC from './MBC';
 /*
  * An enum to represent all of the different types of memory.
  * Used as an argument to the MemoryBank class.
@@ -44,8 +44,8 @@ export default class MemoryBank {
     private _bank: ArrayBuffer | ArrayBuffer[]; // Either single bank or an array of banks
     private _offset: number; // The first address in memory that this bank starts to represent
     private _numOfBanks: number = 0; // For ERAM and ROM, detirmines the number of banks 
-    private _activeBank: number = 0; // For ERAM and ROM, detirmines the active bank
-
+    private _mbc: MBC = null; // For ERAM and ROM, memory bank controller
+    private _type: BankTypes; //Store the type of bank
     /*
      * Constructor can take in either just a bank-type for regular dedicated ram (working ram,
      * I/O registers, etc), a bank-type and size if its the ERAM, or a bank-type and a Uint8array
@@ -54,15 +54,16 @@ export default class MemoryBank {
      * arrays, or with acutal rom data (in typed arrays);
      */
     constructor(bankType: BankTypes); // Most types
-    constructor(bankType: BankTypes, size: number); // ERAM
-    constructor(bankType: BankTypes, rom: Uint8Array); //ROM
-    constructor(bankType: any, size?: any, rom?: any) {
+    constructor(bankType: BankTypes, size: number, mbc: MBC); // ERAM
+    constructor(bankType: BankTypes, rom: Uint8Array, mbc: MBC); //ROM
+    constructor(bankType: any, size?: any, rom?: any, mbc?: any) {
         const { bankSize, offset } = bankProps[bankType];
 
         switch(bankType) {
             case BankTypes.ERAM:
                 this._numOfBanks = Math.ceil(size / bankSize);
                 this._bank = new Array(this._numOfBanks);
+                this._mbc = mbc;
                 
                 for (let bankNum = 0; bankNum < this._numOfBanks; bankNum += 1) {
                     this._bank[bankNum] = new Uint8Array(bankSize);
@@ -74,7 +75,8 @@ export default class MemoryBank {
             case BankTypes.ROM1:
                 this._numOfBanks = Math.ceil(rom.length / bankSize);
                 this._bank = new Array(this._numOfBanks);
-
+                this._mbc = mbc;
+                
                 for (let bankNum = 0; bankNum < this._numOfBanks; bankNum += 1) {
                     const start = (bankNum * bankSize) + offset;
                     const end = (start + bankSize);
@@ -86,6 +88,7 @@ export default class MemoryBank {
                 this._bank = new Uint8Array(bankSize);
         }
         this._offset = offset;
+        this._type = bankType;
     }
 
     getValue(address: Address): number {
@@ -98,11 +101,13 @@ export default class MemoryBank {
         bank[address.getVal()-this._offset] = val;
     }
 
-    setActiveBank(actveBank: number): void {
-        this._activeBank = actveBank;
-    }
-
     private getBank(): Uint8Array {
-        return this._numOfBanks ? this._bank[this._activeBank] : this._bank;
+        if (this._type === BankTypes.ROM1) {
+            return this._bank[this._mbc.getActiveRom()];
+        } else if (this._type === BankTypes.ERAM) {
+            return this._bank[this._mbc.getActiveRam()];
+        } else {
+            return <Uint8Array>this._bank;
+        }
     }
 }
