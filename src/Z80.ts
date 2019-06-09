@@ -1,26 +1,26 @@
+import MMU from './MMU.js';
+import Address from './models/Address.js';
+import Registers from './models/Registers.js';
+
 const _clock = {
     m: 0, 
     t: 0
 };
 
 const _r = {
-    // 8-bit registers
     a: 0,
     b: 0,
     c: 0,
     d: 0,
     e: 0,
     l: 0,
-    f: 0, //flag register
-    // 16-bit registers
-    pc: 0,
-    sp: 0,
-    // clock for last instructions
+    f: 0,
+    pc: new Address(0),
+    sp: new Address(0),
     m: 0,
     t: 0,
-    // interupt master enable
     ime: 0
-};
+} as Registers;
 
 function copy(object: Object) {
     return JSON.parse(JSON.stringify(object));
@@ -75,7 +75,7 @@ class Z80 {
 
     // Compare B to A, setting flags (CP, A, B)
     CPr_b() {
-        var i = this._r.a; // Temp Copy of A
+        let i = this._r.a; // Temp Copy of A
         i -= this._r.b; // Subtract B
         this._r.f |= 0x40; // Set Subtraction Flag
         if (!(i & 255)) { // Check for 0
@@ -85,9 +85,7 @@ class Z80 {
             this._r.f |= 0x10; // Set Carry code
         }
         this._r.m = 1; // 1 M-time take
-        this._r.t = 4; 
     }
-
     // Disable IME
     DI() {
         this._r.ime = 0;
@@ -130,7 +128,7 @@ class Z80 {
 
     // Read a byte from absolute location into A (LD A, addr)
     LDAmm() {
-        var addr = MMU.rw(this._r.pc);              // Get address from instr
+        const addr: Address = new Address(MMU.rw(this._r.pc));              // Get address from instr
         this._r.pc += 2;                            // Advance PC
         this._r.a = MMU.rb(addr);                   // Read from address
         this._r.m = 4;                              // 4 M-times taken

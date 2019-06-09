@@ -1,5 +1,6 @@
-import Address from './models/Address';
-import Z80 from './Z80';
+import Address from './models/Address.js';
+import Z80 from './Z80.js';
+import MMU from './MMU.js';
 
 class TIMER {
     _clock = {

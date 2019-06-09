@@ -1,6 +1,6 @@
-import Address from './models/Address';
-import Z80 from './Z80';
-import MemoryBank, { BankTypes } from './models/MemoryBank';
+import Address from './models/Address.js';
+import Z80 from './Z80.js';
+import MemoryBank, { BankTypes } from './models/MemoryBank.js';
 
 class GPU {
     _canvas: CanvasRenderingContext2D = null;
@@ -64,17 +64,12 @@ class GPU {
                 }
             }
 
-        this._vram = new MemoryBank(BankTypes.VRAM);
-        this._oam = new MemoryBank(BankTypes.OAM);
-
+        this._vram = null;
+        this._oam = null;
         }
 
         //Reset Sprite Memory (OAM)
         for (let k=0, n=0; k < 40; k +=1 , n += 4) {
-            this._oam[n + 0] = 0;
-            this._oam[n + 1] = 0;
-            this._oam[n + 2] = 0;
-            this._oam[n + 3] = 0;
             this._objdata[k] = {
                 y: -16,
                 x: -8,

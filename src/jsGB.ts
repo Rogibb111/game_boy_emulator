@@ -1,7 +1,7 @@
-import GPU from './GPU';
-import TIMER from './TIMER';
-import Z80 from './Z80';
-import MMU from './MMU';
+import GPU from './GPU.js';
+import TIMER from './TIMER.js';
+import Z80 from './Z80.js';
+import MMU from './MMU.js';
 
 class GameBoy {
 
@@ -19,7 +19,7 @@ class GameBoy {
     }
 
     frame() {
-        var fclk = Z80._clock.t + 70224;
+        const fclk = Z80._clock.t + 70224;
         do {
             Z80._map[MMU.rb(Z80._r.pc += 1)]();
             Z80._r.pc &= 65535;
@@ -38,11 +38,11 @@ class GameBoy {
             // an interrup flag is set, handle the interrupt
             if (Z80._r.ime && MMU._ie && MMU._if) {
                 // Mask off ints that aren't enabled
-                var ifired = MMU._ie & MMU._if;
+                const ifired = MMU._ie & MMU._if;
 
                 if(ifired & 0x01) {
                     MMU._if &= (255 - 0x01);
-                    Z80._ops.RST40();
+                    Z80.RST40();
                 }
             }
 
