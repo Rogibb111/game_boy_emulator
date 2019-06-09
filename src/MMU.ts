@@ -1,9 +1,9 @@
-import Z80 from './Z80';
-import GPU from './GPU';
-import KEY from './KEY';
-import MemoryBank, { BankTypes } from './models/MemoryBank';
-import Address from './models/Address';
-import MBC from './models/MBC';
+import Z80 from './Z80.js';
+import GPU from './GPU.js';
+import KEY from './KEY.js';
+import MemoryBank, { BankTypes } from './models/MemoryBank.js';
+import Address from './models/Address.js';
+import MBC from './models/MBC.js';
 
 const CART_TYPE_ADDR = new Address(0x0147);
 
@@ -43,14 +43,8 @@ class MMU {
     // MBC states
      _mbc: MBC; 
     
-    // Offset for second ROM bank
-    _romoffs = 0x4000;
-
-    // Offset for RAM bank
-    _ramoffs = 0x000;
-
     // Copy of the ROM's cartridge-type value
-    _carttype = 0;i
+    _carttype = 0;
 
     constructor() {
         this.reset();
@@ -214,7 +208,7 @@ class MMU {
             // External RAM
             case 0xA000:
             case 0xB000:
-                this._eram[this._ramoffs + (addrVal & 0x1FFF)] = val;
+                this._eram.setValue(addr, val);
                 break;
             case 0xF000:
                 switch(addrVal & 0x0F00) {
@@ -244,8 +238,12 @@ class MMU {
                 break;
         }       
     }
-    ww() { 
-        /* Write 16-bit word to a given address */ 
+    ww(addr: Address, val: number) { 
+        const byte0 = val & 0x00FF;
+        const byte1 = (val & 0xFF00) >> 8;
+
+        this.wb(addr, byte0);
+        this.wb(addr.ADD(1), byte1);
     }
     /*
      * Load rom: this pulls in the Rom as an array-buffer from game file. The onload
@@ -258,11 +256,13 @@ class MMU {
         const reader = new FileReader();
 
         reader.onload = () => {
+            // Read game ROM from file and pull out the cartridge type from buffer for MBC
             const result: ArrayBuffer = <ArrayBuffer>reader.result;
+            const mbc: MBC = new MBC(result[CART_TYPE_ADDR.getVal()]);
             
-            this._rom0 = new MemoryBank(BankTypes.ROM0, <Uint8Array>result.slice(0, 16384));
-            this._rom1 = new MemoryBank(BankTypes.ROM1, <Uint8Array>result.slice(16385, -1));
-            this._carttype = this._rom1.getValue(CART_TYPE_ADDR);
+            this._rom0 = new MemoryBank(BankTypes.ROM0, <Uint8Array>result.slice(0, 16384), mbc);
+            this._rom1 = new MemoryBank(BankTypes.ROM1, <Uint8Array>result.slice(16385, -1), mbc);
+            this._mbc = mbc;
         }
 
         reader.readAsArrayBuffer(rom);
@@ -271,10 +271,10 @@ class MMU {
     reset() {
         this._rom0 = null;
         this._rom1 = null;
-        this._wram = new MemoryBank(BankTypes.WRAM);
-        this._eram = new MemoryBank(BankTypes.ERAM);
-        this._zram = new MemoryBank(BankTypes.ZRAM);
-        this._sram = new MemoryBank(BankTypes.SRAM);
+        this._wram = null;
+        this._eram = null;
+        this._zram = null;
+        this._sram = null;
         this._inbios = 1 ;
 
         //initialize MBC internal data
