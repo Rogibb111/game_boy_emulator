@@ -8,6 +8,7 @@ export default interface Registers {
     d: number,
     e: number,
     l: number,
+    h: number,
     // flag register
     f: number,
     // 16 bit registers

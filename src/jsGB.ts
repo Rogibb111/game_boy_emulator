@@ -22,8 +22,8 @@ class GameBoy {
     frame() {
         const fclk = Z80._clock.t + 70224;
         do {
-            Z80._map[MMU.rb(Z80._r.pc += 1)]();
-            Z80._r.pc &= 65535;
+            Z80._map[MMU.rb(Z80._r.pc.ADD(1))]();
+            Z80._r.pc = Z80._r.pc.AND(65535);
             Z80._clock.m += Z80._r.m;
             Z80._clock.t += Z80._r.t;
             
@@ -55,7 +55,7 @@ class GameBoy {
         } while (Z80._clock.t < fclk);
     }
 
-    run() {
+    run = () => {
         if (!this._interval) {
             this._interval = setTimeout(this.frame, 1);
             document.getElementById('run').innerHTML = 'Pause';

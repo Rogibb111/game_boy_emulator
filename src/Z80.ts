@@ -15,6 +15,7 @@ const _r = {
     e: 0,
     l: 0,
     f: 0,
+    h: 0,
     pc: new Address(0),
     sp: new Address(0),
     m: 0,
@@ -33,7 +34,7 @@ class Z80 {
 
     _clock = copy(_clock);
 
-    _r = copy(_r);
+    _r: Registers = copy(_r);
 
     reset() {
         this._clock = copy(_clock);
@@ -108,9 +109,9 @@ class Z80 {
 
     // Push registers B and C to the stack (PUSH BC)
     PUSHBC() {
-        this._r.sp--;                               // Drop through the stack
+        this._r.sp = this._r.sp.ADD(-1);                               // Drop through the stack
         MMU.wb(this._r.sp, this._r.b);               // Write B
-        this._r.sp--;                               // Drop through the stack
+        this._r.sp = this._r.sp.ADD(-1);;                               // Drop through the stack
         MMU.wb(this._r.sp, this._r.c);               // Write C
         this._r.m = 3;                              // 3 M-times taken
         this._r.t = 12;               
@@ -119,9 +120,9 @@ class Z80 {
     // Pop registers H and L off the stack (POP HL)
     POPHL() {
         this._r.l = MMU.rb(this._r.sp);              // Read L
-        this._r.sp++;                               // Move back up the stack
+        this._r.sp = this._r.sp.ADD(1);                               // Move back up the stack
         this._r.h = MMU.rb(this._r.sp);              // Read H
-        this._r.sp++;                               // Move back up the stack
+        this._r.sp = this._r.sp.ADD(1);                               // Move back up the stack
         this._r.m = 3;                              // 3 M-times taken
         this._r.t = 12;               
     }
@@ -129,7 +130,7 @@ class Z80 {
     // Read a byte from absolute location into A (LD A, addr)
     LDAmm() {
         const addr: Address = new Address(MMU.rw(this._r.pc));              // Get address from instr
-        this._r.pc += 2;                            // Advance PC
+        this._r.pc = this._r.pc.ADD(2);                            // Advance PC
         this._r.a = MMU.rb(addr);                   // Read from address
         this._r.m = 4;                              // 4 M-times taken
         this._r.t=16;                 
@@ -141,8 +142,8 @@ class Z80 {
         this._r.ime = 1;
 
         // Jump to the address on the stack
-        this._r.pc = MMU.rw(this._r.sp);
-        this._r.sp += 2;
+        this._r.pc = new Address(MMU.rw(this._r.sp));
+        this._r.sp = this._r.sp.ADD(2);
 
         this._r.m = 3;
         this._r.t = 12;
@@ -154,11 +155,11 @@ class Z80 {
         this._r.ime = 0;
 
         // Save current SP on the stack
-        this._r.sp -= 2;
-        MMU.ww(this._r.sp, this._r.pc);
+        this._r.sp = this._r.sp.ADD(-2);
+        MMU.ww(this._r.sp, this._r.pc.getVal());
 
         // Jump to handler
-        this._r.pc = 0x0040;
+        this._r.pc = new Address(0x0040);
         this._r.m = 3;
         this._r.t = 12;
     }
