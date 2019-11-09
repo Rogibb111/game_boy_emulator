@@ -60,7 +60,7 @@ class MMU {
                 if (this._inbios) {
                     if (addrVal < 0x0100) {
                         return this._bios[addrVal];
-                    } else if (Z80._r.pc === 0x0100) {
+                    } else if (Z80._r.pc.getVal() === 0x0100) {
                         this._inbios = 0;
                     }
                 }
