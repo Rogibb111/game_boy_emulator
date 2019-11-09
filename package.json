@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",
-    "compile": "tsc -w"
+    "compile": "tsc -w",
+    "run": "node server.js"
   },
   "repository": {
     "type": "git",
