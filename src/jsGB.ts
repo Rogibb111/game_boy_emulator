@@ -15,6 +15,7 @@ class GameBoy {
         MMU.reset();
         Z80.reset();
         const fileInput = <HTMLInputElement>document.getElementById('file-input');
+        fileInput.addEventListener('change', handleRomSelect)
         fileInput.value = ''
     }
 
@@ -80,5 +81,6 @@ function handleRomSelect({ target }){
 
     MMU.load(rom);
 }
+
 
 export default instance;
