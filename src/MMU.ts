@@ -260,8 +260,8 @@ class MMU {
             const result: ArrayBuffer = <ArrayBuffer>reader.result;
             const mbc: MBC = new MBC(result[CART_TYPE_ADDR.getVal()]);
             
-            this._rom0 = new MemoryBank(BankTypes.ROM0, <Uint8Array>result.slice(0, 16384), mbc);
-            this._rom1 = new MemoryBank(BankTypes.ROM1, <Uint8Array>result.slice(16385, -1), mbc);
+            this._rom0 = new MemoryBank(BankTypes.ROM0, new Uint8Array(result.slice(0, 16384)), mbc);
+            this._rom1 = new MemoryBank(BankTypes.ROM1, new Uint8Array(result.slice(16385, -1)), mbc);
             this._mbc = mbc;
         }
 

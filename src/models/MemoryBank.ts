@@ -56,8 +56,15 @@ export default class MemoryBank {
     constructor(bankType: BankTypes); // Most types
     constructor(bankType: BankTypes, size: number, mbc: MBC); // ERAM
     constructor(bankType: BankTypes, rom: Uint8Array, mbc: MBC); //ROM
-    constructor(bankType: any, size?: any, rom?: any, mbc?: any) {
+    constructor(bankType: BankTypes, sizeOrRom?: number | Uint8Array, mbc?: MBC) {
         const { bankSize, offset } = bankProps[bankType];
+        let size: number = null;
+        let rom: Uint8Array = null;
+        if(typeof sizeOrRom === 'number') {
+            size = sizeOrRom;
+        } else {
+            rom = sizeOrRom;
+        }
 
         switch(bankType) {
             case BankTypes.ERAM:
