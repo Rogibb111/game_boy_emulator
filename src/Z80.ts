@@ -39,6 +39,8 @@ class Z80 {
     reset() {
         this._clock = copy(_clock);
         this._r = copy(_r);
+        this._r.pc = new Address(0);
+        this._r.sp = new Address(0);
     }
 
     _map = [
