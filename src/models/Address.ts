@@ -42,7 +42,7 @@ export default class Address {
    ADD(address: number): Address;
    ADD(address: Address): Address;
    ADD(address: any): Address {
-       const numAdd = address.getVal() | address;
+       const numAdd = address.getVal && address.getVal() || address;
        return new Address(this._val + numAdd);
    }
 

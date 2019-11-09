@@ -51,7 +51,7 @@ class MMU {
     }
 
     // Read a byte from memory
-    rb(addr: Address) {
+    rb(addr: Address) : number {
         const addrVal = addr.getVal();
         //Look at opcode of instruction (first four bits)
         switch (addrVal & 0xF000) {
