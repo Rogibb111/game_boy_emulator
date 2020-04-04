@@ -43,18 +43,6 @@ class Z80 {
         this._r.sp = new Address(0);
     }
 
-    _map = [
-        this.ADDr_e,
-        this.CPr_b,
-        this.DI,
-        this.EI,
-        this.LDAmm,
-        this.NOP,
-        this.POPHL,
-        this.PUSHBC,
-        this.RETI,
-        this.RST40
-    ];
 
 
     /*----------------------------*\
@@ -130,10 +118,25 @@ class Z80 {
     }
 
     // Read a byte from absolute location into A (LD A, addr)
-    LDAmm() {
+    LDAn() {
         const addr: Address = new Address(MMU.rw(this._r.pc));              // Get address from instr
         this._r.pc = this._r.pc.ADD(2);                            // Advance PC
         this._r.a = MMU.rb(addr);                   // Read from address
+        this._r.m = 4;                              // 4 M-times taken
+        this._r.t=16;                 
+    }
+
+    LDHLnn = () => {
+        this._r.l = MMU.rb(this._r.pc);
+        this._r.h = MMU.rb(this._r.pc.ADD(1));
+        this._r.pc = this._r.pc.ADD(2);
+        this._r.m = 4
+        this._r.t = 16;
+    }
+
+    LDSPnn = () => {
+        this._r.sp = new Address(MMU.rw(this._r.pc.ADD(1)));       // Load up next word in memory after opcode and store in stack pointer     
+        this._r.pc = this._r.pc.ADD(2);                            // Advance PC
         this._r.m = 4;                              // 4 M-times taken
         this._r.t=16;                 
     }
@@ -165,8 +168,28 @@ class Z80 {
         this._r.m = 3;
         this._r.t = 12;
     }
+
+    XORA = () => {
+        this._r.a ^= this._r.a;
+        this._r.m = 1;
+        this._r.t = 4;
+    }
+
+    _map = {
+        [0x83]: this.ADDr_e,
+        [0xB8]: this.CPr_b,
+        [0xF3]: this.DI,
+        [0xFB]: this.EI,
+        [0x3E]: this.LDAn,
+        [0x00]: this.NOP,
+        [0xE1]: this.POPHL,
+        [0xC5]: this.PUSHBC,
+        [0xD9]: this.RETI,
+        [0x31]: this.LDSPnn,
+        [0xAF]: this.XORA,
+        [0x21]: this.LDHLnn
+    };
 };
 
 const instance: Z80 = new Z80();
 export default instance;
-
