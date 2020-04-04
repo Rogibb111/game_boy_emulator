@@ -32,7 +32,7 @@ export default class Address {
    AND(address: number): Address;
    AND(address: Address): Address;
    AND(address: any): Address {
-       const numAnd = address.getVal() | address;
+       const numAnd = address.getVal && address.getVal() || address;
        return new Address(this._val & numAnd);
    }
 
