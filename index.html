@@ -8,5 +8,12 @@
 	<body>
 		<canvas id="screen" width="160" height="144"></canvas>
 		<a id="reset">Reset</a> | <a id="run">Run</a> | <input type="file" id="file-input"/>
+    <script>
+      hex = (num) => { console.log(num.toString(16)); }
+      bin = (num) => { 
+        const bin = num.toString(2); 
+        console.log('00000000'.slice(bin.length) + bin); 
+      }
+    </script>
 	</body>
 </html>
