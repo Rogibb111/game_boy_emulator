@@ -1,4 +1,15 @@
-import MMU from '../MMU.js';
+import MMU from '../MMU';
+import Address from '../models/Address';
+
+// Read a byte from absolute location into A (LD A, addr)
+function LDAn(_r) {
+    const addr: Address = new Address(MMU.rw(_r.pc));              // Get address from instr
+    _r.pc = this._r.pc.ADD(2);                            // Advance PC
+    _r.a = MMU.rb(addr);                   // Read from address
+    _r.m = 4;                              // 4 M-times taken
+    _r.t=16;                 
+}
+
 
 function LDHLnn(_r) {
     _r.l = MMU.rb(_r.pc);

@@ -25,4 +25,10 @@ export function CPr_b(_r) {
             _r.f |= 0x10; // Set Carry code
         }
         _r.m = 1; // 1 M-time take
-    }
+}
+
+export function XORA() {
+    this._r.a ^= this._r.a;
+    this._r.m = 1;
+    this._r.t = 4;
+}
