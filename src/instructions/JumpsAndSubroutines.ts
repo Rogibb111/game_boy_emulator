@@ -15,7 +15,7 @@ export function RETI(_r) {
 }
 
 // Start vblank handler (0040h)
-export function RST40() {
+export function RST40(_r) {
     // Disable further interrupts
     _r.ime = 0;
 

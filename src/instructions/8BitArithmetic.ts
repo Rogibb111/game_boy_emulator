@@ -27,6 +27,7 @@ export function CPr_b(_r) {
         _r.m = 1; // 1 M-time take
 }
 
+// Bitwise XOR between the value in A and A, which gets stored in A
 export function XORA() {
     this._r.a ^= this._r.a;
     this._r.m = 1;

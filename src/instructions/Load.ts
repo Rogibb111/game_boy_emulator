@@ -2,7 +2,7 @@ import MMU from '../MMU';
 import Address from '../models/Address';
 
 // Read a byte from absolute location into A (LD A, addr)
-function LDAn(_r) {
+export function LDAn(_r) {
     const addr: Address = new Address(MMU.rw(_r.pc));              // Get address from instr
     _r.pc = this._r.pc.ADD(2);                            // Advance PC
     _r.a = MMU.rb(addr);                   // Read from address
@@ -11,7 +11,7 @@ function LDAn(_r) {
 }
 
 
-function LDHLnn(_r) {
+export function LDHLnn(_r) {
     _r.l = MMU.rb(_r.pc);
     _r.h = MMU.rb(_r.pc.ADD(1));
     _r.pc = _r.pc.ADD(2);
