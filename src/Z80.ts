@@ -1,7 +1,7 @@
-import MMU from './MMU.js';
-import Address from './models/Address.js';
-import Registers from './models/Registers.js';
-
+import MMU from 'MMU';
+import Address from 'models/Address';
+import Registers from 'models/Registers';
+import * as Instructions  from 'instructions/index';
 const _clock = {
     m: 0, 
     t: 0
@@ -43,151 +43,19 @@ class Z80 {
         this._r.sp = new Address(0);
     }
 
-
-
-    /*----------------------------*\
-    ||        Instructions        ||
-    \*----------------------------*/
-
-    // Add E to A, leaving result in A (ADD A, E)
-    ADDr_e() {
-        this._r.a += this._r.e; // Perform Addition
-        this._r.f = 0; // Clear flags
-        if (!(this._r.a & 255)) { // Check For Zero
-            this._r.f |= 0x80; // Set 0 code
-        }
-        if (this._r.a > 255) { // Check for carry
-            this._r.f |= 0x10; // Set carry code
-        }
-        this._r.a &= 255; // Mask to 8 bits
-        this._r.m =1; // 1 M-time taken
-        this._r.t = 4;
-    }
-
-    // Compare B to A, setting flags (CP, A, B)
-    CPr_b() {
-        let i = this._r.a; // Temp Copy of A
-        i -= this._r.b; // Subtract B
-        this._r.f |= 0x40; // Set Subtraction Flag
-        if (!(i & 255)) { // Check for 0
-            this._r.f |= 0x80; // Set 0 code
-        }
-        if (i < 0) { // Check for underflow
-            this._r.f |= 0x10; // Set Carry code
-        }
-        this._r.m = 1; // 1 M-time take
-    }
-    // Disable IME
-    DI() {
-        this._r.ime = 0;
-        this._r.m = 1;
-        this._r.t = 4;
-    }
-    
-    // Enable IME
-    EI() {
-        this._r.ime = 1;
-        this._r.m = 1;
-        this._r.t = 4;
-    }
-
-    // No-opertation (NOP)
-    NOP() {
-        this._r.m = 1; // 1 M-time take
-        this._r.t = 4; 
-    }
-
-    // Push registers B and C to the stack (PUSH BC)
-    PUSHBC() {
-        this._r.sp = this._r.sp.ADD(-1);                               // Drop through the stack
-        MMU.wb(this._r.sp, this._r.b);               // Write B
-        this._r.sp = this._r.sp.ADD(-1);;                               // Drop through the stack
-        MMU.wb(this._r.sp, this._r.c);               // Write C
-        this._r.m = 3;                              // 3 M-times taken
-        this._r.t = 12;               
-    }
-
-    // Pop registers H and L off the stack (POP HL)
-    POPHL() {
-        this._r.l = MMU.rb(this._r.sp);              // Read L
-        this._r.sp = this._r.sp.ADD(1);                               // Move back up the stack
-        this._r.h = MMU.rb(this._r.sp);              // Read H
-        this._r.sp = this._r.sp.ADD(1);                               // Move back up the stack
-        this._r.m = 3;                              // 3 M-times taken
-        this._r.t = 12;               
-    }
-
-    // Read a byte from absolute location into A (LD A, addr)
-    LDAn() {
-        const addr: Address = new Address(MMU.rw(this._r.pc));              // Get address from instr
-        this._r.pc = this._r.pc.ADD(2);                            // Advance PC
-        this._r.a = MMU.rb(addr);                   // Read from address
-        this._r.m = 4;                              // 4 M-times taken
-        this._r.t=16;                 
-    }
-
-    LDHLnn = () => {
-        this._r.l = MMU.rb(this._r.pc);
-        this._r.h = MMU.rb(this._r.pc.ADD(1));
-        this._r.pc = this._r.pc.ADD(2);
-        this._r.m = 4
-        this._r.t = 16;
-    }
-
-    LDSPnn = () => {
-        this._r.sp = new Address(MMU.rw(this._r.pc.ADD(1)));       // Load up next word in memory after opcode and store in stack pointer     
-        this._r.pc = this._r.pc.ADD(2);                            // Advance PC
-        this._r.m = 4;                              // 4 M-times taken
-        this._r.t=16;                 
-    }
-
-    // Return from interrupt (called by handler)
-    RETI() {
-        // Restore interrupts
-        this._r.ime = 1;
-
-        // Jump to the address on the stack
-        this._r.pc = new Address(MMU.rw(this._r.sp));
-        this._r.sp = this._r.sp.ADD(2);
-
-        this._r.m = 3;
-        this._r.t = 12;
-    }
-    
-    // Start vblank handler (0040h)
-    RST40() {
-        // Disable further interrupts
-        this._r.ime = 0;
-
-        // Save current SP on the stack
-        this._r.sp = this._r.sp.ADD(-2);
-        MMU.ww(this._r.sp, this._r.pc.getVal());
-
-        // Jump to handler
-        this._r.pc = new Address(0x0040);
-        this._r.m = 3;
-        this._r.t = 12;
-    }
-
-    XORA = () => {
-        this._r.a ^= this._r.a;
-        this._r.m = 1;
-        this._r.t = 4;
-    }
-
     _map = {
-        [0x83]: this.ADDr_e,
-        [0xB8]: this.CPr_b,
-        [0xF3]: this.DI,
-        [0xFB]: this.EI,
-        [0x3E]: this.LDAn,
-        [0x00]: this.NOP,
-        [0xE1]: this.POPHL,
-        [0xC5]: this.PUSHBC,
-        [0xD9]: this.RETI,
-        [0x31]: this.LDSPnn,
-        [0xAF]: this.XORA,
-        [0x21]: this.LDHLnn
+        [0x83]: Instructions.ADDr_e,
+        [0xB8]: Instructions.CPr_b,
+        [0xF3]: Instructions.DI,
+        [0xFB]: Instructions.EI,
+        [0x3E]: Instructions.LDAn,
+        [0x00]: Instructions.NOP,
+        [0xE1]: Instructions.POPHL,
+        [0xC5]: Instructions.PUSHBC,
+        [0xD9]: Instructions.RETI,
+        [0x31]: Instructions.LDSPnn,
+        [0xAF]: Instructions.XORA,
+        [0x21]: Instructions.LDHLnn
     };
 };
 
