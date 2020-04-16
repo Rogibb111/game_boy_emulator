@@ -2,6 +2,7 @@ import GPU from './GPU.js';
 import TIMER from './TIMER.js';
 import Z80 from './Z80.js';
 import MMU from './MMU.js';
+import { RST40 } from './instructions/JumpsAndSubroutines';
 
 class GameBoy {
 
@@ -43,7 +44,7 @@ class GameBoy {
 
                 if(ifired & 0x01) {
                     MMU._if &= (255 - 0x01);
-                    Z80.RST40();
+                    RST40(Z80._r);
                 }
             }
 
