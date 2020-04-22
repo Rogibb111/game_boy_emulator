@@ -23,7 +23,8 @@ class GameBoy {
     frame() {
         const fclk = Z80._clock.t + 70224;
         do {
-            Z80._map[MMU.rb(Z80._r.pc)]();
+            const opcode = MMU.rb(Z80._r.pc);
+            Z80._map[opcode](Z80._r, opcode);
             Z80._r.pc = Z80._r.pc.ADD(1).AND(65535);
             Z80._clock.m += Z80._r.m;
             Z80._clock.t += Z80._r.t;
