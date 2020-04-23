@@ -1,6 +1,13 @@
 import Address from '../models/Address';
 import MMU from '../MMU';
 
+const CONDITION_CODE_MAPS = {
+    0x20: (flag) => !!(flag & 0x80 ^ 0x80),
+    0x28: (flag) => !(flag & 0x80 ^ 0x80),
+    0x30: (flag) => !!(flag & 0x10 ^ 0x10),
+    0x38: (flag) => !(flag & 0x10 ^ 0x10)
+};
+
 // Return from interrupt (called by handler)
 export function RETI(_r) {
     // Restore interrupts
@@ -27,4 +34,15 @@ export function RST40(_r) {
     _r.pc = new Address(0x0040);
     _r.m = 3;
     _r.t = 12;
+}
+
+export function JR_cc_e8(_r, instruction) {
+    const conditionMet = CONDITION_CODE_MAPS[instruction >> 8](_r.f);
+
+    if (conditionMet) {
+        _r.pc = _r.pc.ADD(instruction & 0xFF);
+    }
+
+    _r.m = conditionMet ? 3 : 2;
+    _r.t = conditionMet ? 12 : 8;
 }
