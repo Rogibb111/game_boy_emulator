@@ -22,10 +22,8 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-    # Installs node in the enviornment
+    # Installs node in the environment
     - uses: actions/setup-node@v1
-	with:
-	    node-version: '10.x'
-    
-    # Run Npm Install
+      with:
+      	node-version: '10.x' 
     - run: npm install
