@@ -26,4 +26,7 @@ jobs:
     - uses: actions/setup-node@v1
       with: 
         node-version: '10.x' 
-    - run: npm install
+    - name: yarn install
+      run: yarn install
+    - name: tsc
+      uses: icrawl/action-tsc@v1
