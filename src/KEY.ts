@@ -1,5 +1,5 @@
 class KEY {
-    _rows = [0x0F, 0x0F];
+iiiiii    _rows = [0x0F, 0x0F];
     _column = 0;
 
     reset() {
