@@ -1,6 +1,10 @@
 export default class Nibble {
-    private data: number;
+    protected val: number;
 
-    constructor(data: number) {
+    constructor(val: number) {
+    }
+
+    getVal() {
+        return this.val;
     }
 }

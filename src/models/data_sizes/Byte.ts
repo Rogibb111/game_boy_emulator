@@ -1,16 +1,20 @@
 import Nibble from './Nibble.js'; 
 
 export default class Byte {
-    private data: number;
+    protected val: number;
 
-    constructor(data: number) {
+    constructor(val: number) {
+    }
+
+    getVal() {
+        return this.val;
     }
 
     getFirstNibble(): Nibble {
-        return new Nibble(this.data >> 4);
+        return new Nibble(this.val >> 4);
     }
 
     getLastNibble(): Nibble {
-        return new Nibble(this.data & 0xF);
+        return new Nibble(this.val & 0xF);
     }
 }

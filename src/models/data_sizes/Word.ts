@@ -1,16 +1,32 @@
 import Byte from './Byte.js';
 
 export default class Word {
-    private data: number;
+    protected val : number;
 
-    constructor(data: number) {
+    constructor(val: number) {
+    }
+
+    getVal() {
+        return this.val;
+    }
+
+    printHex() {
+        console.log(this.val.toString(16));
+    }
+
+    printDec() {
+        console.log(this.val.toString());
+    }
+
+    printBin() {
+        console.log(this.val.toString(2));
     }
 
     getFirstByte(): Byte {
-        return new Byte(this.data >> 8);
+        return new Byte(this.val >> 8);
     }
 
     getLastByte(): Byte {
-        return new Byte(this.data & 0xFF);
+        return new Byte(this.val & 0xFF);
     }
 }
