@@ -99,7 +99,7 @@ class MMU {
             
             // Working RAM shadow, I/0, Zero-page RAM
             case 0xF000:
-                switch (addrVal() & 0x0F00) {
+                switch (addrVal & 0x0F00) {
                     case 0x000:
                     case 0xD00:
                         return this._wram.getValue(addr);
@@ -107,7 +107,7 @@ class MMU {
                     // Graphics: object attribute memory
                     // OAM is 100 bytes, remaining bytes read as 0
                     case 0xE00:
-                        if(addrVal() < 0xFEA0) {
+                        if(addrVal < 0xFEA0) {
                             return GPU._oam.getValue(addr);
                         }                            
                         return 0;
@@ -203,7 +203,7 @@ class MMU {
             case 0x8000:
             case 0x9000:
                 GPU._vram.setValue(addr, val);
-                GPU.updateTile(addrVal, val);
+                GPU.updateTile(addr, val);
                 break;
             // External RAM
             case 0xA000:
