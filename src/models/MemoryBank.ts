@@ -6,7 +6,7 @@
  * bank using Addresses. 
  */
 
-import Address from './data_types/Address';
+import Address from './data_types/Address.js';
 import MBC from './MBC.js';
 /*
  * An enum to represent all of the different types of memory.

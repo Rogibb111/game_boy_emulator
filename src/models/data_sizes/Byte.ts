@@ -1,4 +1,4 @@
-import Nibble from './Nibble'; 
+import Nibble from './Nibble.js'; 
 
 export default class Byte {
     private data: number;

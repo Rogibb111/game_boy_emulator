@@ -1,5 +1,5 @@
-import Address from '../models/data_types/Address';
-import MMU from '../MMU';
+import Address from '../models/data_types/Address.js';
+import MMU from '../MMU.js';
 
 const CONDITION_CODE_MAPS = {
     0x20: (flag) => !!(flag & 0x80 ^ 0x80),

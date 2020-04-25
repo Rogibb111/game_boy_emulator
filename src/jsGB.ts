@@ -2,7 +2,7 @@ import GPU from './GPU.js';
 import TIMER from './TIMER.js';
 import Z80 from './Z80.js';
 import MMU from './MMU.js';
-import { RST40 } from './instructions/JumpsAndSubroutines';
+import { RST40 } from './instructions/JumpsAndSubroutines.js';
 
 class GameBoy {
 

@@ -1,4 +1,4 @@
-import Byte from './Byte';
+import Byte from './Byte.js';
 
 export default class Word {
     private data: number;
