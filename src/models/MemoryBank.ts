@@ -6,8 +6,8 @@
  * bank using Addresses. 
  */
 
-import Address from './Address';
-import MBC from './MBC';
+import Address from './data_types/Address';
+import MBC from './MBC.js';
 /*
  * An enum to represent all of the different types of memory.
  * Used as an argument to the MemoryBank class.

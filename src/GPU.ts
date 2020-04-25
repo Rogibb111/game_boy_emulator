@@ -1,4 +1,4 @@
-import Address from './models/Address.js';
+import Address from './models/data_types/Address.js';
 import Z80 from './Z80.js';
 import MemoryBank, { BankTypes } from './models/MemoryBank.js';
 

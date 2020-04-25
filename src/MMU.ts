@@ -2,7 +2,7 @@ import Z80 from './Z80.js';
 import GPU from './GPU.js';
 import KEY from './KEY.js';
 import MemoryBank, { BankTypes } from './models/MemoryBank.js';
-import Address from './models/Address.js';
+import Address from './models/data_types/Address';
 import MBC from './models/MBC.js';
 
 const CART_TYPE_ADDR = new Address(0x0147);

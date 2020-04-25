@@ -1,5 +1,5 @@
 import MMU from 'MMU';
-import Address from 'models/Address';
+import Address from 'models/data_types/Address';
 import Registers from 'models/Registers';
 import * as Instructions  from 'instructions/index';
 const _clock = {

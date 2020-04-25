@@ -1,4 +1,4 @@
-import Address from '../models/Address';
+import Address from '../models/data_types/Address';
 import MMU from '../MMU';
 
 const CONDITION_CODE_MAPS = {

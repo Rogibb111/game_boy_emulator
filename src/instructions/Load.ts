@@ -1,5 +1,5 @@
 import MMU from '../MMU';
-import Address from '../models/Address';
+import Address from '../models/data_types/Address';
 
 // Read a byte from absolute location into A (LD A, addr)
 export function LDAn(_r) {

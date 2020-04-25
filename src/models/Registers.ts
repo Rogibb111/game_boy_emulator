@@ -1,4 +1,4 @@
-import Address from './Address';``
+import Address from './data_types/Address.js';
 
 export default interface Registers {
     // 8-bit Registers
