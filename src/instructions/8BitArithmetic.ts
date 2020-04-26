@@ -1,5 +1,7 @@
+import Registers from '../models/Registers.js';
+
 // Add E to A, leaving result in A (ADD A, E)
-export function ADDr_e (_r) {
+export function ADDr_e (_r: Registers) {
     _r.a += _r.e; // Perform Addition
     _r.f = 0; // Clear flags
     if (!(_r.a & 255)) { // Check For Zero
@@ -14,7 +16,7 @@ export function ADDr_e (_r) {
 }
 
     // Compare B to A, setting flags (CP, A, B)
-export function CPr_b(_r) {
+export function CPr_b(_r: Registers) {
         let i = _r.a; // Temp Copy of A
         i -= _r.b; // Subtract B
         _r.f |= 0x40; // Set Subtraction Flag
@@ -28,7 +30,7 @@ export function CPr_b(_r) {
 }
 
 // Bitwise XOR between the value in A and A, which gets stored in A
-export function XORA(_r) {
+export function XORA(_r: Registers) {
     this._r.a ^= this._r.a;
     this._r.m = 1;
     this._r.t = 4;
