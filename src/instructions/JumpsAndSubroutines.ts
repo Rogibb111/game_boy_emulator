@@ -1,5 +1,6 @@
 import Address from '../models/data_types/Address.js';
 import MMU from '../MMU.js';
+import Instruction from '../models/data_types/Instruction.js';
 
 const CONDITION_CODE_MAPS = {
     0x20: (flag) => !!(flag & 0x80 ^ 0x80),
@@ -36,11 +37,11 @@ export function RST40(_r) {
     _r.t = 12;
 }
 
-export function JR_cc_e8(_r, instruction) {
-    const conditionMet = CONDITION_CODE_MAPS[instruction >> 8](_r.f);
+export function JR_cc_e8(_r, instruction: Instruction) {
+    const conditionMet = CONDITION_CODE_MAPS[instruction.getFirstByte().getVal()](_r.f);
 
     if (conditionMet) {
-        _r.pc = _r.pc.ADD(instruction & 0xFF);
+        _r.pc = _r.pc.ADD(instruction.getLastByte().getVal());
     }
 
     _r.m = conditionMet ? 3 : 2;
