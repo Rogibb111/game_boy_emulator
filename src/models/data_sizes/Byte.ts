@@ -3,7 +3,14 @@ import Nibble from './Nibble.js';
 export default class Byte {
     protected val: number;
 
-    constructor(val: number) {
+    constructor(val: number);
+    constructor(nibble1: Nibble, nibble2: Nibble);
+    constructor(nibble1OrVal: number | Nibble, nibble2?: Nibble){
+        if (typeof nibble1OrVal === 'number') {
+            this.val = nibble1OrVal;
+        } else {
+            this.val = (nibble1OrVal.getVal() << 4) + (nibble2.getVal() & 0xF);
+        }
     }
 
     getVal() {

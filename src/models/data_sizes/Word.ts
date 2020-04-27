@@ -3,7 +3,14 @@ import Byte from './Byte.js';
 export default class Word {
     protected val : number;
 
-    constructor(val: number) {
+    constructor(val: number);
+    constructor(byte1: Byte, byte2: Byte);
+    constructor(byte1OrVal: number | Byte, byte2?: Byte){
+        if (typeof byte1OrVal === 'number') {
+            this.val = byte1OrVal;
+        } else {
+            this.val = (byte1OrVal.getVal() << 8) + (byte2.getVal() & 0xFF);
+        }
     }
 
     getVal() {

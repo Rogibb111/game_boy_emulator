@@ -2,12 +2,21 @@
 // Each address is made up of 8 bits
 // Currently only logs the address in different
 // bases.
-import Word from '../data_sizes/Word';
+import Word from '../data_sizes/Word.js';
+import Byte from '../data_sizes/Byte.js';
 
 export default class Address extends Word {
-    
-    constructor(address: number) {
-      super(address);  
+    // Constructor can take in either a number val, a plain Word 
+    // instance, or 2 Byte instances. Passes to Word constructor
+    // which only takes number or 2 Bytes instances.
+    constructor(valOrByte: number | Word | Byte, byte2?: Byte) {
+        if(valOrByte instanceof Word) {
+            super(valOrByte.getVal());
+        } else if (typeof valOrByte === 'number') {
+            super(valOrByte);
+        } else {
+            super(valOrByte, byte2);
+        }
     }
 
    // Convience AND operator for converting one address into another.
