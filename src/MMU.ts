@@ -2,8 +2,10 @@ import Z80 from './Z80.js';
 import GPU from './GPU.js';
 import KEY from './KEY.js';
 import MemoryBank, { BankTypes } from './models/MemoryBank.js';
-import Address from './models/Address.js';
+import Address from './models/data_types/Address';
 import MBC from './models/MBC.js';
+import Byte from './models/data_sizes/Byte.js';
+import Word from './models/data_sizes/Word.js';
 
 const CART_TYPE_ADDR = new Address(0x0147);
 
@@ -37,8 +39,8 @@ class MMU {
     _eram: MemoryBank; 
     _zram: MemoryBank;
     _sram: MemoryBank;
-    _ie = 0;
-    _if = 0;
+    _ie: Byte = new Byte(0);
+    _if: Byte = new Byte(0);
 
     // MBC states
      _mbc: MBC; 
@@ -51,7 +53,7 @@ class MMU {
     }
 
     // Read a byte from memory
-    rb(addr: Address) : number {
+    rb(addr: Address) : Byte {
         const addrVal = addr.getVal();
         //Look at opcode of instruction (first four bits)
         switch (addrVal & 0xF000) {
@@ -59,7 +61,7 @@ class MMU {
             case 0x0000:
                 if (this._inbios) {
                     if (addrVal < 0x0100) {
-                        return this._bios[addrVal];
+                        return new Byte(this._bios[addrVal]);
                     } else if (Z80._r.pc.getVal() === 0x0100) {
                         this._inbios = 0;
                     }
@@ -99,7 +101,7 @@ class MMU {
             
             // Working RAM shadow, I/0, Zero-page RAM
             case 0xF000:
-                switch (addrVal() & 0x0F00) {
+                switch (addrVal & 0x0F00) {
                     case 0x000:
                     case 0xD00:
                         return this._wram.getValue(addr);
@@ -107,10 +109,10 @@ class MMU {
                     // Graphics: object attribute memory
                     // OAM is 100 bytes, remaining bytes read as 0
                     case 0xE00:
-                        if(addrVal() < 0xFEA0) {
+                        if(addrVal < 0xFEA0) {
                             return GPU._oam.getValue(addr);
                         }                            
-                        return 0;
+                        return new Byte(0);
                     case 0xF00:
                         if (addrVal === 0xFFFF ) {
                             return this._ie;
@@ -131,7 +133,7 @@ class MMU {
                                         case 0:
                                             return KEY.rb();
                                         default:
-                                            return 0;
+                                            return new Byte(0);
                                     }
                                 case 0x40:
                                 case 0x50:
@@ -139,7 +141,7 @@ class MMU {
                                 case 0x70:
                                     return GPU.rb(addr);
                             }
-                            return 0;
+                            return new Byte(0);
                         }
 
                 }
@@ -148,11 +150,11 @@ class MMU {
     }
 
     //Read a 16-bit word
-    rw(addr: Address) {
-        return this.rb(addr) + (this.rb(addr.ADD(1)) << 8);
+    rw(addr: Address): Word {
+        return new Word(this.rb(addr.ADD(1)), this.rb(addr));
     }
 
-    wb(addr: Address, val: number) {
+    wb(addr: Address, val: Byte) {
         const addrVal = addr.getVal();
         switch(addrVal & 0xF000) {
             // MBC1: External Ram Switch
@@ -195,7 +197,7 @@ class MMU {
                 switch(this._carttype) {
                     case 2:
                     case 3:
-                        this._mbc[1].mode = val & 1;
+                        this._mbc[1].mode = val.getVal() & 1;
                         break;
                 }
                 break;
@@ -203,7 +205,7 @@ class MMU {
             case 0x8000:
             case 0x9000:
                 GPU._vram.setValue(addr, val);
-                GPU.updateTile(addrVal, val);
+                GPU.updateTile(addr, val);
                 break;
             // External RAM
             case 0xA000:
@@ -238,12 +240,9 @@ class MMU {
                 break;
         }       
     }
-    ww(addr: Address, val: number) { 
-        const byte0 = val & 0x00FF;
-        const byte1 = (val & 0xFF00) >> 8;
-
-        this.wb(addr, byte0);
-        this.wb(addr.ADD(1), byte1);
+    ww(addr: Address, val: Word): void { 
+        this.wb(addr, val.getLastByte());
+        this.wb(addr.ADD(1), val.getFirstByte());
     }
     /*
      * Load rom: this pulls in the Rom as an array-buffer from game file. The onload

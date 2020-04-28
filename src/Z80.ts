@@ -1,21 +1,22 @@
 import MMU from 'MMU';
-import Address from 'models/Address';
+import Address from 'models/data_types/Address';
 import Registers from 'models/Registers';
 import * as Instructions  from 'instructions/index';
+import Byte from './models/data_sizes/Byte.js';
 const _clock = {
     m: 0, 
     t: 0
 };
 
 const _r = {
-    a: 0,
-    b: 0,
-    c: 0,
-    d: 0,
-    e: 0,
-    l: 0,
-    f: 0,
-    h: 0,
+    a: new Byte(0),
+    b: new Byte(0),
+    c: new Byte(0),
+    d: new Byte(0),
+    e: new Byte(0),
+    l: new Byte(0),
+    f: new Byte(0),
+    h: new Byte(0),
     pc: new Address(0),
     sp: new Address(0),
     m: 0,
