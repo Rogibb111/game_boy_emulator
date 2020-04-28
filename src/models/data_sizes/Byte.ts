@@ -32,4 +32,8 @@ export default class Byte {
     AND(val: number): Byte {
         return new Byte(this.val & val);
     }
+
+    OR(val: number): Byte {
+        return new Byte(this.val | val);
+    }
 }
