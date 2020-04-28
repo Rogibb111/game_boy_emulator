@@ -377,30 +377,31 @@ class GPU {
         }
     }
 
-    buildobjdata(addr: Address, val: number): void {
+    buildobjdata(addr: Address, val: Byte): void {
         const addrVal = addr.getVal();
         const obj = (addrVal - 0xFE00) >> 2;
+        const rawVal = val.getVal();
 
         if (obj < 40) {
             switch (addrVal & 3) {
                 // Y-coordinate
                 case 0:
-                    this._objdata[obj].y = val - 16;
+                    this._objdata[obj].y = rawVal - 16;
                     break;
                 // X-coordinate
                 case 1:
-                    this._objdata[obj].x = val - 8;
+                    this._objdata[obj].x = rawVal - 8;
                     break;
                 // Data tile
                 case 2:
-                    this._objdata[obj].tile = val;
+                    this._objdata[obj].tile = rawVal;
                     break;
                 // Options    
                 case 3:
-                    this._objdata[obj].palette = (val & 0x10) ? 1 : 0;
-                    this._objdata[obj].xflip = (val & 0x20) ? 1 : 0;
-                    this._objdata[obj].yflip = (val & 0x30) ? 1 : 0;
-                    this._objdata[obj].prio = (val & 0x80) ? 1 : 0;
+                    this._objdata[obj].palette = (rawVal & 0x10) ? 1 : 0;
+                    this._objdata[obj].xflip = (rawVal & 0x20) ? 1 : 0;
+                    this._objdata[obj].yflip = (rawVal & 0x30) ? 1 : 0;
+                    this._objdata[obj].prio = (rawVal & 0x80) ? 1 : 0;
                     break;
             }
         }

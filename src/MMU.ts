@@ -197,7 +197,7 @@ class MMU {
                 switch(this._carttype) {
                     case 2:
                     case 3:
-                        this._mbc[1].mode = val & 1;
+                        this._mbc[1].mode = val.getVal() & 1;
                         break;
                 }
                 break;

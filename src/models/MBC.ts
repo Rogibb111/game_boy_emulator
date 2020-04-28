@@ -8,6 +8,7 @@
  * then keeps track of which chunk(bank) is currently 
  * being addressed by that open range;
  */
+import Byte from './data_sizes/Byte.js';
 
 export enum MBCType{
     MBC0,
@@ -34,25 +35,25 @@ export default class MBC {
         return this._activeRamBank;
     }
 
-    setActiveRomBankSet(val: number) {
-        this._activeRomBank = (this._activeRomBank & 0x1F) + ((val & 3) << 5);
+    setActiveRomBankSet(val: Byte): void {
+        this._activeRomBank = (this._activeRomBank & 0x1F) + ((val.getVal() & 3) << 5);
     }
     
-    setActiveRomBank(val: number) {
-        val &= 0x1F; // Isolate lowest five bits of value
-        if (!val) {
-            val = 1; // Default if value is 0
+    setActiveRomBank(val: Byte): void {
+        let rawVal = val.AND(0x1F).getVal(); // Isolate lowest five bits of value
+        if (!rawVal) {
+            rawVal = 1; // Default if value is 0
         }
 
-        this._activeRomBank = (this._activeRomBank & 0x60) + val;
+        this._activeRomBank = (this._activeRomBank & 0x60) + rawVal;
     }
 
-    setActiveRam(val: number) {
-        this._activeRamBank = val & 3;
+    setActiveRam(val: Byte): void {
+        this._activeRamBank = val.AND(3).getVal();;
     }
 
-    setRamOn(val: number) {
-        this._ramOn = ((val & 0x0F) == 0x0A) ? true : false;
+    setRamOn(val: Byte): void {
+        this._ramOn = ((val.AND(0x0F)).getVal() == 0x0A) ? true : false;
     }
 
     getMode(): number {
