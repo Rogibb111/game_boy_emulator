@@ -21,10 +21,10 @@ export function LDHLnn(_r: Registers) {
 }
 
 export function LD_HLD_A(_r: Registers) {
-    const addr: Address = new Address(_r.h << 8 + _r.l);
+    const addr: Address = new Address(_r.h, _r.l);
     const newAddr: Address = addr.ADD(-1);
-    _r.h = (newAddr.getVal() & 0xFF00) >> 8;
-    _r.l = (newAddr.getVal() & 0xFF);
+    _r.h = newAddr.getFirstByte();
+    _r.l = newAddr.getLastByte();
     
     MMU.wb(addr, _r.a);
     _r.m = 2;

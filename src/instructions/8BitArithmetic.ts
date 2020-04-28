@@ -1,30 +1,31 @@
 import Registers from '../models/Registers.js';
+import Byte from '../models/data_sizes/Byte.js';
 
 // Add E to A, leaving result in A (ADD A, E)
 export function ADDr_e (_r: Registers) {
-    _r.a += _r.e; // Perform Addition
-    _r.f = 0; // Clear flags
-    if (!(_r.a & 255)) { // Check For Zero
-        _r.f |= 0x80; // Set 0 code
+    _r.a = _r.a.ADD( _r.e.getVal()); // Perform Addition
+    _r.f = new Byte(0); // Clear flags
+    if (!(_r.a.AND(255))) { // Check For Zero
+        _r.f = _r.f.OR(0x80); // Set 0 code
     }
-    if (_r.a > 255) { // Check for carry
-        _r.f |= 0x10; // Set carry code
+    if (_r.a.getVal() > 255) { // Check for carry
+        _r.f = _r.f.OR(0x10); // Set carry code
     }
-    _r.a &= 255; // Mask to 8 bits
+    _r.a = _r.a.AND(255); // Mask to 8 bits
     _r.m =1; // 1 M-time taken
     _r.t = 4;
 }
 
     // Compare B to A, setting flags (CP, A, B)
 export function CPr_b(_r: Registers) {
-        let i = _r.a; // Temp Copy of A
-        i -= _r.b; // Subtract B
-        _r.f |= 0x40; // Set Subtraction Flag
+        let i = _r.a.getVal(); // Temp Copy of A
+        i -= _r.b.getVal(); // Subtract B
+        _r.f = _r.f.OR(0x40); // Set Subtraction Flag
         if (!(i & 255)) { // Check for 0
-            _r.f |= 0x80; // Set 0 code
+            _r.f = _r.f.OR(0x80); // Set 0 code
         }
         if (i < 0) { // Check for underflow
-            _r.f |= 0x10; // Set Carry code
+            _r.f = _r.f.OR(0x10); // Set Carry code
         }
         _r.m = 1; // 1 M-time take
 }

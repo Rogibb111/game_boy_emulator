@@ -1,16 +1,17 @@
 import Address from './data_types/Address.js';
+import Byte from './data_sizes/Byte.js';
 
 export default interface Registers {
     // 8-bit Registers
-    a: number,
-    b: number,
-    c: number,
-    d: number,
-    e: number,
-    l: number,
-    h: number,
+    a: Byte,
+    b: Byte,
+    c: Byte,
+    d: Byte,
+    e: Byte,
+    l: Byte,
+    h: Byte,
     // flag register
-    f: number,
+    f: Byte,
     // 16 bit registers
     pc: Address,
     sp: Address,

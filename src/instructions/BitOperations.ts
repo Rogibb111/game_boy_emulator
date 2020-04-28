@@ -33,9 +33,9 @@ export function BITu3r8(_r: Registers, instruction: TwoByteCodeInstruction) {
     const reg = registerMap[opcode.getVal() & 0xF];
     
     if ((_r[reg] & bitNum) === 0) {
-        _r.f = _r.f | 0x80;
+        _r.f = _r.f.OR(0x80);
     }
-    _r.f = (_r.f | 0x20) & 0xB0;
+    _r.f = _r.f.OR(0x20).AND(0xB0);
 
     _r.m = 2;
     _r.t = 8;
