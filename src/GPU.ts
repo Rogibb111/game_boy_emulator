@@ -1,17 +1,18 @@
 import Address from './models/data_types/Address.js';
 import Z80 from './Z80.js';
 import MemoryBank, { BankTypes } from './models/MemoryBank.js';
+import Byte from './models/data_sizes/Byte.js';
 
 class GPU {
     _canvas: CanvasRenderingContext2D = null;
     _scrn: ImageData = null;
     _mode = 0;
     _modeClock = 0;
-    _line = 0;
+    _line: Byte = new Byte(0);
     _tileset = [];
     _bgmap = 0;
-    _scy = 0;
-    _scx = 0;
+    _scy: Byte = new Byte(0);
+    _scx: Byte = new Byte(0);
     _vram: MemoryBank = null;
     _oam: MemoryBank = null;;
     _bgtile = 0;
@@ -84,9 +85,9 @@ class GPU {
 
     // Takes a value written to VRAM, and updates the internal
     // tile data set
-    updateTile(addr: Address, val: number): void {
+    updateTile(addr: Address, val: Byte): void {
         //Get the "base address" for this tile row
-        const baseAddr: Address = addr.AND( 0x1FFE);
+        const baseAddr: Address = addr.AND(0x1FFE);
 
         //Work out which tile and row has updated
         var tile = (baseAddr.getVal() >> 4) & 511;
@@ -99,19 +100,20 @@ class GPU {
 
             // Update tile set
             this._tileset[tile][y][x] = 
-                ((this._vram.getValue(baseAddr) & sx) ? 1 : 0) +
-                ((this._vram.getValue(baseAddr.ADD(1)) & sx) ? 2 : 0);
+                ((this._vram.getValue(baseAddr).AND(sx)) ? 1 : 0) +
+                ((this._vram.getValue(baseAddr.ADD(1)).AND(sx)) ? 2 : 0);
         }
     }
 
-    rb(addr: Address): number { 
+    rb(addr: Address): Byte { 
         switch(addr.getVal()) {
             case 0xFF40:
-                return  (this._switchbg  ? 0x01 : 0x00) |
+                const val = (this._switchbg  ? 0x01 : 0x00) |
                         (this._switchobj ? 0x02 : 0x00) |
                         (this._bgmap     ? 0x08 : 0x00) |
                         (this._bgtile    ? 0x10 : 0x00) |
-                        (this._switchlcd ? 0x80 : 0x00);
+                    (this._switchlcd ? 0x80 : 0x00);
+                return new Byte(val);
             // Scroll Y
             case 0xFF42:
                 return this._scy;
@@ -126,15 +128,16 @@ class GPU {
         }
     }
 
-    wb(addr: Address, val: number): void {
+    wb(addr: Address, val: Byte): void {
         switch(addr.getVal()) {
             //LCD Control
             case 0xFF40:
-                this._switchbg   = (val & 0x01) ? 1 : 0;
-                this._switchobj  = (val & 0x02) ? 1 : 0;
-                this._bgmap      = (val & 0x05) ? 1 : 0;
-                this._bgtile     = (val & 0x10) ? 1 : 0;
-                this._switchlcd  = (val & 0x80) ? 1 : 0;
+                const rawVal = val.getVal();
+                this._switchbg   = (rawVal & 0x01) ? 1 : 0;
+                this._switchobj  = (rawVal & 0x02) ? 1 : 0;
+                this._bgmap      = (rawVal & 0x05) ? 1 : 0;
+                this._bgtile     = (rawVal & 0x10) ? 1 : 0;
+                this._switchlcd  = (rawVal & 0x80) ? 1 : 0;
                 break;
             
             //Scroll Y
@@ -150,7 +153,7 @@ class GPU {
             // Background palette
             case 0xFF47:
                 for(var i = 0; i < 4; i++) {
-                    switch((val >> (i * 2)) * 3) {
+                    switch((val.getVal() >> (i * 2)) * 3) {
                         case 0:
                             this._pal.bg[i] = [255,255,255,255];
                             break;
@@ -170,7 +173,7 @@ class GPU {
             // Object Palettes
             case 0xFF48:
                 for(var k = 0; k < 4; k++) {
-                    switch((val >> (k * 2)) * 3) {
+                    switch((val.getVal() >> (k * 2)) * 3) {
                         case 0:
                             this._pal.obj0[k] = [255,255,255,255];
                             break;
@@ -189,7 +192,7 @@ class GPU {
 
             case 0xFF49:
                 for(var j = 0; j < 4; j++) {
-                    switch((val >> (j * 2)) * 3) {
+                    switch((val.getVal() >> (j * 2)) * 3) {
                         case 0:
                             this._pal.obj1[j] = [255,255,255,255];
                             break;
@@ -241,9 +244,9 @@ class GPU {
             case 0: {
                 if(this._modeClock >= 204) {
                     this._modeClock = 0;
-                    this._line++;
+                    this._line = this._line.ADD(1);
 
-                    if(this._line == 143) {
+                    if(this._line.getVal() == 143) {
                         // Enter vblank
                         this._mode = 1;
                         this._canvas.putImageData(this._scrn, 0, 0);
@@ -257,12 +260,12 @@ class GPU {
             case 1: {
                 if(this._modeClock >= 456) {
                     this._modeClock = 0;
-                    this._line += 1;
+                    this._line = this._line.ADD(1);
 
-                    if(this._line > 153) {
+                    if(this._line.getVal() > 153) {
                         // Restart scanning modes
                         this._mode = 2;
-                        this._line = 0;
+                        this._line = new Byte(0);
                     }
                 }
                 break;
@@ -273,25 +276,28 @@ class GPU {
     renderScan(): void {
         // Scanline data, for use by sprite renderer
         const scanrow = [];
+        const rawScx = this._scx.getVal();
+        const rawScy = this._scy.getVal();
+        const rawLine = this._line.getVal();
 
         if (this._switchbg) {
             // VRAM offset for the tile map
             let mapoffs = this._bgmap ? 0x1C00 : 0x1800;
 
             // Which line of tiles to use in the map
-            mapoffs += ((this._line + this._scy) & 255) >> 3;
+            mapoffs += ((rawLine + rawScy) & 255) >> 3;
 
             // Which tile to start with in the map line
-            var lineoffs = (this._scx >> 3);
+            var lineoffs = (rawScx >> 3);
 
             // Which line of pixels to use in the tiles
-            var y = (this._line + this._scy) & 7;
+            var y = (rawLine + rawScy) & 7;
 
             // Where in the tile line to start
-            var x = this._scx & 7;
+            var x = rawScx & 7;
 
             // Where to render on the canvas
-            var canvasoffs = this._line * 180 * 4;
+            var canvasoffs = rawLine * 180 * 4;
 
             // Read tile index from the background map
             let color: number;
@@ -332,20 +338,20 @@ class GPU {
                 var obj = this._objdata[j];
                 
                 // Check if this sprite falls on this scanline
-                if (obj.y <= this._line && (obj.y + 8) > this._line) {
+                if (obj.y <= rawLine && (obj.y + 8) > rawLine) {
                     // Palette to use for this sprite
                     var pal = obj.pal ? this._pal.obj1 : this._pal.obj0;
 
                     // Where to render on the canvas
-                    var canvsoffs = (this._line * 160 + obj.x) * 4;
+                    var canvsoffs = (rawLine * 160 + obj.x) * 4;
 
                     // Data for this line of the sprite
                     let tilerow: number;
 
                     if (obj.yflip) {
-                        tilerow = this._tileset[obj.tile][7 - (this._line - obj.y)];
+                        tilerow = this._tileset[obj.tile][7 - (rawLine - obj.y)];
                     } else {
-                        tilerow = this._tileset[obj.tile][this._line - obj.y];
+                        tilerow = this._tileset[obj.tile][rawLine - obj.y];
                     }
 
                     let colorobj: number;

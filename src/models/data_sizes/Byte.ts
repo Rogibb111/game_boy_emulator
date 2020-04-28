@@ -24,4 +24,12 @@ export default class Byte {
     getLastNibble(): Nibble {
         return new Nibble(this.val & 0xF);
     }
+
+    ADD(val: number): Byte {
+        return new Byte(this.val + val);
+    }
+
+    AND(val: number): Byte {
+        return new Byte(this.val & val);
+    }
 }

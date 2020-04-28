@@ -8,6 +8,7 @@
 
 import Address from './data_types/Address.js';
 import MBC from './MBC.js';
+import Byte from './data_sizes/Byte.js';
 /*
  * An enum to represent all of the different types of memory.
  * Used as an argument to the MemoryBank class.
@@ -98,14 +99,14 @@ export default class MemoryBank {
         this._type = bankType;
     }
 
-    getValue(address: Address): number {
+    getValue(address: Address): Byte {
         const bank = this.getBank();
-        return bank[address.getVal() - this._offset];
+        return new Byte(bank[address.getVal() - this._offset]);
     }
     
-    setValue(address: Address, val: number): void {
+    setValue(address: Address, val: Byte): void {
         const bank = this.getBank();
-        bank[address.getVal()-this._offset] = val;
+        bank[address.getVal()-this._offset] = val.getVal();
     }
 
     private getBank(): Uint8Array {
