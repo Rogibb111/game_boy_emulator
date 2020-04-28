@@ -75,7 +75,7 @@ class TIMER {
             this._reg.tima = this._reg.tma;
 
             // Flag a timer interrupt to the dispatcher
-            MMU._if |= 4;
+            MMU._if = MMU._if.OR(4);
         }
     }
 
