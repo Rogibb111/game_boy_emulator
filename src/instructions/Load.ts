@@ -1,6 +1,14 @@
 import MMU from '../MMU.js';
 import Address from '../models/data_types/Address.js';
 import Registers from '../models/Registers.js';
+import Instruction from '../models/data_types/Instruction.js';
+import Opcode from '../models/data_types/Opcode.js';
+
+const WORD_REGISTER_MAP = {
+    0x01: ['b', 'c'],
+    0x11: ['d', 'e'],
+    0x21: ['h', 'l']
+};
 
 // Read a byte from absolute location into A (LD A, addr)
 export function LDAn(_r: Registers) {
@@ -9,15 +17,6 @@ export function LDAn(_r: Registers) {
     _r.a = MMU.rb(addr);                                  // Read from address
     _r.m = 4;                                             // 4 M-times taken
     _r.t=16;                 
-}
-
-
-export function LDHLnn(_r: Registers) {
-    _r.l = MMU.rb(_r.pc);
-    _r.h = MMU.rb(_r.pc.ADD(1));
-    _r.pc = _r.pc.ADD(2);
-    _r.m = 4;
-    _r.t = 16;
 }
 
 export function LD_HLD_A(_r: Registers) {
@@ -31,3 +30,12 @@ export function LD_HLD_A(_r: Registers) {
     _r.t = 8;
 }
 
+export function LD_RW_NW(_r: Registers, instruction: Instruction) {
+    const opcode: Opcode = instruction.getFirstByte();
+    const [upper, lower] = WORD_REGISTER_MAP[opcode.getVal()];
+    _r[lower] = MMU.rb(_r.pc);
+    _r[upper] = MMU.rb(_r.pc.ADD(1));
+    _r.pc = _r.pc.ADD(2);
+    _r.m = 3;
+    _r.t = 12;
+}
