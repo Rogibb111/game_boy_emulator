@@ -49,7 +49,9 @@ class Z80 {
         0xD9: Instructions.RETI,
         0x31: Instructions.LDSPnn,
         0xAF: Instructions.XORA,
-        0x21: Instructions.LDHLnn,
+        0x01: Instructions.LD_RW_NW,
+        0x11: Instructions.LD_RW_NW,
+        0x21: Instructions.LD_RW_NW,
         0xCB: this._execute16BitInstruction
     };
 
