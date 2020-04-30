@@ -22,7 +22,7 @@ const BYTE_REGISTER_MAP = {
 };
 
 // Read a byte from absolute location into A (LD A, addr)
-export function LDAn(_r: Registers) {
+export function LD_A_NW(_r: Registers) {
     const addr: Address = new Address(MMU.rw(_r.pc));     // Get address from instr
     
     _r.pc = this._r.pc.ADD(2);                            // Advance PC
