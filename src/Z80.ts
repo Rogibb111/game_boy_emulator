@@ -3,10 +3,19 @@ import Address from 'models/data_types/Address';
 import Registers from 'models/Registers';
 import * as Instructions  from 'instructions/index';
 import Byte from './models/data_sizes/Byte.js';
+
 const _clock = {
     m: 0, 
     t: 0
 };
+
+function setFlagBit(val: 0 | 1, pos: number, reg: Byte): Byte {
+    const valStr = val.toString();
+    const regStr = reg.getVal().toString(2);
+    const newRegVal = regStr.substring(0,pos) + valStr + regStr.substring(pos+1);
+    
+    return new Byte(Number('0b' + newRegVal));
+}
 
 const _r = {
     a: new Byte(0),
@@ -21,7 +30,11 @@ const _r = {
     sp: new Address(0),
     m: 0,
     t: 0,
-    ime: 0
+    ime: 0,
+    setZ: (val: 0 | 1): void => { this.f = setFlagBit(val, 0, this.f);  },
+    setN: (val: 0 | 1): void => { this.f = setFlagBit(val, 1, this.f);  },
+    setH: (val: 0 | 1): void => { this.f = setFlagBit(val, 2, this.f);  },
+    setC: (val: 0 | 1): void => { this.f = setFlagBit(val, 3, this.f);  }
 } as Registers;
 
 function copy(object: Object) {
