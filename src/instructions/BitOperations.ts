@@ -1,6 +1,7 @@
 import Registers from '../models/Registers.js';
 import TwoByteCodeInstruction from '../models/data_types/TwoByteCodeInstruction.js';
 import Opcode from '../models/data_types/Opcode.js';
+import { InstructionMetaData } from './InstructionMetaData.js';
 
 function getBit(opcode: Opcode) {
     const opVal = opcode.getVal();
@@ -27,19 +28,20 @@ function getBit(opcode: Opcode) {
 let registerMap = ['b', 'c', 'd', 'e', 'h', 'l', 'hl', 'a'];
 registerMap = registerMap.concat(registerMap);
 
-export function BITu3r8(_r: Registers, instruction: TwoByteCodeInstruction) {
-    const opcode: Opcode = instruction.getLastByte();
-    const bitNum = getBit(opcode);
-    const reg = registerMap[opcode.getVal() & 0xF];
-    
-    if ((_r[reg] & bitNum) === 0) {
-        _r.setZ(1);
-    }
-    _r.setN(0);
-    _r.setH(0);
+export const BITu3r8 = {
+    m: 2,
+    t: 8,
+    action: ({ opcode2, _r }): void => {
+        const bitNum = getBit(opcode2);
+        const reg = registerMap[opcode2.getVal() & 0xF];
 
-    _r.m = 2;
-    _r.t = 8;
-}
+        if ((_r[reg] & bitNum) === 0) {
+            _r.setZ(1);
+        }
+    },
+    n: 0,
+    h: 1,
+    bytes: 2
+} as InstructionMetaData;
 
 
