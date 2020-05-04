@@ -13,12 +13,13 @@ export interface ActionData {
 }
 
 export interface InstructionMetaData {
-    m: number;
-    t: number;
+    m?: number;
+    t?: number;
     action: { (data: ActionData): void };
-    z: 0 | 1;
-    n: 0 | 1;
-    h: 0 | 1;
-    c: 0 | 1;
+    z?: 0 | 1;
+    n?: 0 | 1;
+    h?: 0 | 1;
+    c?: 0 | 1;
+    ime?: 0 | 1;
     bytes: number;
 }
