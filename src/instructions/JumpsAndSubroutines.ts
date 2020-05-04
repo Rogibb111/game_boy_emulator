@@ -48,5 +48,6 @@ export const JR_cc_e8 = {
 
     _r.m = conditionMet ? 3 : 2;
     _r.t = conditionMet ? 12 : 8;
-    }
+    },
+    bytes: 2
 } as InstructionMetaData;
