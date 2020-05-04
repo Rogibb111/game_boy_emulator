@@ -4,3 +4,4 @@ export * from 'Load.js';
 export * from 'Miscellaneous.js';
 export * from 'StackOperations.js';
 export * from 'BitOperations.js';
+export * from 'InstructionMetaData.js'
