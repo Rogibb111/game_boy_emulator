@@ -63,3 +63,10 @@ export function LD_RB_NB(_r: Registers, instruction: Instruction) {
     _r.m = 2;
     _r.t = 8;
 }
+
+export function LDH_C_A(_r: Registers) {
+    MMU.wb(new Address(0xFF00).ADD(_r.c.getVal()), _r.a);
+
+    _r.m = 2;
+    _r.t = 8;
+}
