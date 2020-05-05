@@ -6,10 +6,10 @@ export function ADDr_e (_r: Registers) {
     _r.a = _r.a.ADD( _r.e.getVal()); // Perform Addition
     _r.f = new Byte(0); // Clear flags
     if (!(_r.a.AND(255))) { // Check For Zero
-        _r.f = _r.f.OR(0x80); // Set 0 code
+        _r.setZ(1); // Set 0 code
     }
     if (_r.a.getVal() > 255) { // Check for carry
-        _r.f = _r.f.OR(0x10); // Set carry code
+        _r.setC(1); // Set carry code
     }
     _r.a = _r.a.AND(255); // Mask to 8 bits
     _r.m =1; // 1 M-time taken
@@ -20,12 +20,12 @@ export function ADDr_e (_r: Registers) {
 export function CPr_b(_r: Registers) {
         let i = _r.a.getVal(); // Temp Copy of A
         i -= _r.b.getVal(); // Subtract B
-        _r.f = _r.f.OR(0x40); // Set Subtraction Flag
+        _r.setN(1);  // Set Subtraction Flag
         if (!(i & 255)) { // Check for 0
-            _r.f = _r.f.OR(0x80); // Set 0 code
+            _r.setZ(1); // Set 0 code
         }
         if (i < 0) { // Check for underflow
-            _r.f = _r.f.OR(0x10); // Set Carry code
+            _r.setC(1); // Set Carry code
         }
         _r.m = 1; // 1 M-time take
 }
