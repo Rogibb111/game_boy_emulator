@@ -1,20 +1,22 @@
 import Registers from '../models/Registers.js';
+import { InstructionMetaData } from './InstructionMetaData.js';
+
 // Disable IME
-export function DI(_r: Registers) {
-    _r.ime = 0;
-    _r.m = 1;
-    _r.t = 4;
-}
+export const DI = {
+    m: 1,
+    t: 4,
+    ime: 0
+} as InstructionMetaData;
 
 // Enable IME
-export function EI(_r: Registers) {
-    _r.ime = 1;
-    _r.m = 1;
-    _r.t = 4;
-}
+export const EI = {
+    m: 1,
+    t: 4,
+    ime: 0
+} as InstructionMetaData;
 
 // No-opertation (NOP)
-export function NOP(_r: Registers) {
-    this._r.m = 1; // 1 M-time take
-    this._r.t = 4; 
-}
+export const NOP = {
+    m: 1,
+    t: 4
+};
