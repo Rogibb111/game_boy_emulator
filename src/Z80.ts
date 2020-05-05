@@ -87,6 +87,10 @@ class Z80 {
         const second_operand = instruction & 0xFF;
         this. _16BitInstructions[second_operand](_r, instruction);
     }
+
+    public executeInstruction() {
+     
+    }
     
     public reset() {
         this._clock = copy(_clock);
