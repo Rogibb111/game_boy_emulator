@@ -21,6 +21,16 @@ const BYTE_REGISTER_MAP = {
     0x3E: 'a'
 };
 
+const BYTE_HL_REGISTER_MAP = {
+    0x70: 'b',
+    0x71: 'c',
+    0x72: 'd',
+    0x73: 'e',
+    0x74: 'h',
+    0x75: 'l',
+    0x77: 'a'
+};
+
 // Read a byte from absolute location into A (LD A, addr)
 export function LD_A_NW(_r: Registers) {
     const addr: Address = new Address(MMU.rw(_r.pc));     // Get address from instr
@@ -62,4 +72,18 @@ export function LD_RB_NB(_r: Registers, instruction: Instruction) {
     _r[reg] = operand;
     _r.m = 2;
     _r.t = 8;
+}
+
+export function LDH_C_A(_r: Registers) {
+    MMU.wb(new Address(0xFF00).ADD(_r.c.getVal()), _r.a);
+
+    _r.m = 2;
+    _r.t = 8;
+}
+
+export function LD_HL_RB(_r: Registers, instruction: Instruction) {
+    const addr: Address = new Address(_r.h, _r.l);
+    const reg: string = BYTE_HL_REGISTER_MAP[instruction.getFirstByte().getVal()];
+
+    MMU.wb(addr, _r[reg]);    
 }

@@ -1,5 +1,18 @@
 import Registers from '../models/Registers.js';
 import Byte from '../models/data_sizes/Byte.js';
+import Instruction from '../models/data_types/Instruction.js';
+import Byted from '../models/data_sizes/Byte.js';
+import Opcode from '../models/data_types/Opcode.js';
+
+const INC_REGISTER_MAP = {
+    0x04: 'b',
+    0x0C: 'c',
+    0x14: 'd',
+    0x1C: 'e',
+    0x24: 'h',
+    0x2C: 'l',
+    0x3C: 'a',
+};
 
 // Add E to A, leaving result in A (ADD A, E)
 export function ADDr_e (_r: Registers) {
@@ -35,4 +48,21 @@ export function XORA(_r: Registers) {
     this._r.a ^= this._r.a;
     this._r.m = 1;
     this._r.t = 4;
+}
+
+export function INC_RB(_r: Registers, instruction: Instruction) {
+    const opcode: Opcode = instruction.getFirstByte();
+    const reg: string = INC_REGISTER_MAP[opcode.getVal()];
+    
+    const val: Byte = _r[reg].ADD(1);
+    
+    if (!_r[reg].AND(255).getVal()) {
+        _r.setZ(1);
+    }
+    if (_r[reg].getNibble().getVal() > 15) {
+        _r.setH(1);
+    }
+    _r.setN(0);
+
+    _r[reg] = val.AND(255);
 }
