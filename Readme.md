@@ -3,6 +3,8 @@
 
 A small project that I have been working on to familarize myself with TypeScript and my next step in writing emulators. This Readme will currently serve as a place for me to track my progress. Fascination reading material.
 
+* 5/4/20 - Have changed over the instructions to be Meta-Data instructions. 
+
 * 4/29/20 - Have added about 3 new instructions to the Z80 opcode map. Spent a bunch of time creating a small roadmap for myself using GitHub projects (I feel like a PM now with my fancy Kanban board).I also was able to get a GitHub action working to build the project whenever a PR gets put up and disable the merge button if the build fails. Not the most useful thing in the world, but does keep me from merging in bad typescript. Last and most painful was adding in all of the data models. There is a decent amount of redundancy in them for the time being, but I'm hoping that as I enter into the logging phase of this, I will be able to flush them out into more useful classes (As in different models will have different printouts). 
 
 * 4/15/20 - Finished up the memory logic to wrap up work on the major systems. Did some minor error fixes with typing. Updated the module system to use ES2015 modules. Since modules don't work via loading from the file-system, needed to add small static node server to serve up files. Got button handlers fixed up as well. Started adding instructions to Z80 class. Wound up breaking them up into seperate files.
