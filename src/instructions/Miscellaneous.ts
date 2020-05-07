@@ -19,4 +19,4 @@ export const EI = {
 export const NOP = {
     m: 1,
     t: 4
-};
+} as InstructionMetaData;
