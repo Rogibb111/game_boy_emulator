@@ -99,16 +99,26 @@ class Z80 {
         if (metaData.action) {
             switch(metaData.bytes - 1) {
                 case 0: 
-                    metaData.action({ _r: this._r });
+                    metaData.action({ 
+                        _r: this._r,
+                        opcode1: opcode 
+                    });
                     break;
                 case 1: 
-                    const operand1: Operand = MMU.rb(this._r.pc.ADD(1));
-                    metaData.action({ _r: this._r, operand1 });
+                    const byte1: Byte = MMU.rb(this._r.pc.ADD(1));
+                    metaData.action({ 
+                        _r: this._r,
+                        opcode1: opcode,
+                        opcode2: byte1,
+                        operand1: byte1 
+                    });
                     break;
                 case 2:
                     const word: Word = MMU.rw(this._r.pc.ADD(1));
                     metaData.action({
                         _r: this._r,
+                        opcode1: opcode,
+                        opcode2: word.getFirstByte(),
                         operand1: word.getFirstByte(),
                         operand2: word.getLastByte()
                     })
