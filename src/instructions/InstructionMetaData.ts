@@ -8,7 +8,6 @@ export interface ActionData {
     opcode2?: Opcode;
     operand1?: Operand; 
     operand2?: Operand;
-    operand3?: Operand;
     _r: Registers;
 }
 
