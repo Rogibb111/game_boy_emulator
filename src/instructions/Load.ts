@@ -1,5 +1,5 @@
 import MMU from '../MMU.js';
-impor Address from '../models/data_types/Address.js';
+import Address from '../models/data_types/Address.js';
 import Registers from '../models/Registers.js';
 import Instruction from '../models/data_types/Instruction.js';
 import Opcode from '../models/data_types/Opcode.js';
@@ -91,11 +91,16 @@ export const LDH_C_A = {
         MMU.wb(new Address(0xFF00).ADD(_r.c.getVal()), _r.a);
     },
     bytes: 1
-};
+} as InstructionMetaData;
 
-export function LD_HL_RB(_r: Registers, instruction: Instruction) {
-    const addr: Address = new Address(_r.h, _r.l);
-    const reg: string = BYTE_HL_REGISTER_MAP[instruction.getFirstByte().getVal()];
+export const LD_HL_RB = {
+    m: 2,
+    t: 8,
+    action: ({ _r, opcode1 }) => {
+        const addr: Address = new Address(_r.h, _r.l);
+        const reg: string = BYTE_HL_REGISTER_MAP[opcode1.getVal()];
 
-    MMU.wb(addr, _r[reg]);    
-}
+        MMU.wb(addr, _r[reg]);    
+    },
+    bytes: 1
+} as InstructionMetaData;
