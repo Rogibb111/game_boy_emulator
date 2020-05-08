@@ -1,6 +1,7 @@
 import Address from '../models/data_types/Address.js';
 import MMU from '../MMU.js';
 import Instruction from '../models/data_types/Instruction.js';
+import { InstructionMetaData } from './InstructionMetaData.js';
 
 const CONDITION_CODE_MAPS = {
     0x20: (flag) => !!(flag & 0x80 ^ 0x80),
@@ -10,19 +11,19 @@ const CONDITION_CODE_MAPS = {
 };
 
 // Return from interrupt (called by handler)
-export function RETI(_r) {
-    // Restore interrupts
-    _r.ime = 1;
+export const RETI = {
+    m: 3,
+    t: 12,
+    action: ({ _r }) => {
+        _r.pc = new Address(MMU.rw(_r.sp));
+        _r.sp = _r.sp.ADD(2);
+    },
+    ime: 1,
+    bytes: 1
+} as InstructionMetaData;
 
-    // Jump to the address on the stack
-    _r.pc = new Address(MMU.rw(_r.sp));
-    _r.sp = _r.sp.ADD(2);
-
-    _r.m = 3;
-    _r.t = 12;
-}
-
-// Start vblank handler (0040h)
+// Start vblank handler (0040h) 
+// TODO: This instruction needs to be genericised.
 export function RST40(_r) {
     // Disable further interrupts
     _r.ime = 0;
@@ -37,13 +38,16 @@ export function RST40(_r) {
     _r.t = 12;
 }
 
-export function JR_cc_e8(_r, instruction: Instruction) {
-    const conditionMet = CONDITION_CODE_MAPS[instruction.getFirstByte().getVal()](_r.f);
+export const JR_cc_e8 = {
+    action: ({ opcode1, operand1,  _r }): void => {
+        const conditionMet = CONDITION_CODE_MAPS[opcode1.getVal()](_r.f);
 
     if (conditionMet) {
-        _r.pc = _r.pc.ADD(instruction.getLastByte().getVal());
+        _r.pc = _r.pc.ADD(operand1.getVal());
     }
 
     _r.m = conditionMet ? 3 : 2;
     _r.t = conditionMet ? 12 : 8;
-}
+    },
+    bytes: 2
+} as InstructionMetaData;
