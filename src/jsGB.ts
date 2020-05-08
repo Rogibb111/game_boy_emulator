@@ -23,7 +23,7 @@ class GameBoy {
     frame() {
         const fclk = Z80._clock.t + 70224;
         do {
-            Z80.executeInstruction(); 
+            Z80.executeCurrentInstruction(); 
             // Update the Timer
             TIMER.inc();
 
