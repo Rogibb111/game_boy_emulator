@@ -87,12 +87,12 @@ class Z80 {
         }
     }
 
-    private _execute16BitInstruction(_r, instruction) {
+    private _execute16BitInstruction(_r, instruction): void {
         const second_operand = instruction & 0xFF;
         this. _16BitInstructions[second_operand](_r, instruction);
     }
 
-    public executeCurrentInstruction() {
+    public executeCurrentInstruction(): void {
         const opcode: Opcode = MMU.rb(this._r.pc);
         const metaData: InstructionMetaData = this._map[opcode.getVal()];
         
@@ -131,7 +131,7 @@ class Z80 {
         this._clock.t += metaData.t;
     }
     
-    public reset() {
+    public reset(): void {
         this._clock = copy(_clock);
         this._r = copy(_r);
         this._r.pc = new Address(0);
