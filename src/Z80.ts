@@ -3,6 +3,10 @@ import Address from 'models/data_types/Address';
 import Registers from 'models/Registers';
 import * as Instructions  from 'instructions/index';
 import Byte from './models/data_sizes/Byte.js';
+import Opcode from './models/data_types/Opcode.js';
+import { InstructionMetaData } from './instructions/InstructionMetaData.js';
+import Word from './models/data_sizes/Word.js';
+import Operand from './models/data_types/Operand.js';
 
 const _clock = {
     m: 0, 
@@ -83,12 +87,51 @@ class Z80 {
         }
     }
 
-    private _execute16BitInstruction(_r, instruction) {
+    private _execute16BitInstruction(_r, instruction): void {
         const second_operand = instruction & 0xFF;
         this. _16BitInstructions[second_operand](_r, instruction);
     }
+
+    public executeCurrentInstruction(): void {
+        const opcode: Opcode = MMU.rb(this._r.pc);
+        const metaData: InstructionMetaData = this._map[opcode.getVal()];
+        
+        if (metaData.action) {
+            switch(metaData.bytes - 1) {
+                case 0: 
+                    metaData.action({ 
+                        _r: this._r,
+                        opcode1: opcode 
+                    });
+                    break;
+                case 1: 
+                    const byte1: Byte = MMU.rb(this._r.pc.ADD(1));
+                    metaData.action({ 
+                        _r: this._r,
+                        opcode1: opcode,
+                        opcode2: byte1,
+                        operand1: byte1 
+                    });
+                    break;
+                case 2:
+                    const word: Word = MMU.rw(this._r.pc.ADD(1));
+                    metaData.action({
+                        _r: this._r,
+                        opcode1: opcode,
+                        opcode2: word.getFirstByte(),
+                        operand1: word.getFirstByte(),
+                        operand2: word.getLastByte()
+                    })
+                    break;
+                default:
+            }
+        }
+        this._r.pc = this._r.pc.ADD(metaData.bytes).AND(65535);
+        this._clock.m += metaData.m;
+        this._clock.t += metaData.t;
+    }
     
-    public reset() {
+    public reset(): void {
         this._clock = copy(_clock);
         this._r = copy(_r);
         this._r.pc = new Address(0);
