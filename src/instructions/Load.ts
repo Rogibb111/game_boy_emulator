@@ -1,21 +1,7 @@
 import MMU from '../MMU.js';
 import Address from '../models/data_types/Address.js';
-import Registers from '../models/Registers.js';
-import Instruction from '../models/data_types/Instruction.js';
-import Opcode from '../models/data_types/Opcode.js';
-import Byte from '../models/data_sizes/Byte.js';
 import { InstructionMetaData } from './InstructionMetaData.js';
 import Word from '../models/data_sizes/Word.js';
-
-const BYTE_HL_REGISTER_MAP = {
-    0x70: 'b',
-    0x71: 'c',
-    0x72: 'd',
-    0x73: 'e',
-    0x74: 'h',
-    0x75: 'l',
-    0x77: 'a'
-};
 
 // Read a byte from absolute location into A (LD A, addr)
 export const LD_A_NW = {
@@ -96,9 +82,18 @@ export const LD_HL_RB = {
     t: 8,
     action: ({ _r, opcode1 }) => {
         const addr: Address = new Address(_r.h, _r.l);
-        const reg: string = BYTE_HL_REGISTER_MAP[opcode1.getVal()];
+        const reg: string = this.map[opcode1.getVal()];
 
         MMU.wb(addr, _r[reg]);    
+    },
+    map: {
+        0x70: 'b',
+        0x71: 'c',
+        0x72: 'd',
+        0x73: 'e',
+        0x74: 'h',
+        0x75: 'l',
+        0x77: 'a'
     },
     bytes: 1
 } as InstructionMetaData;
