@@ -3,13 +3,6 @@ import MMU from '../MMU.js';
 import Instruction from '../models/data_types/Instruction.js';
 import { InstructionMetaData } from './InstructionMetaData.js';
 
-const CONDITION_CODE_MAPS = {
-    0x20: (flag) => !!(flag & 0x80 ^ 0x80),
-    0x28: (flag) => !(flag & 0x80 ^ 0x80),
-    0x30: (flag) => !!(flag & 0x10 ^ 0x10),
-    0x38: (flag) => !(flag & 0x10 ^ 0x10)
-};
-
 // Return from interrupt (called by handler)
 export const RETI = {
     m: 3,
@@ -42,7 +35,7 @@ export const JR_cc_e8 = {
     m: 2,
     t: 8,
     action: function ({ opcode1, operand1,  _r }): void {
-        const conditionMet = CONDITION_CODE_MAPS[opcode1.getVal()](_r.f);
+        const conditionMet = this.map[opcode1.getVal()](_r.f);
 
         if (conditionMet) {
             _r.pc = _r.pc.ADD(operand1.getVal());
@@ -52,6 +45,12 @@ export const JR_cc_e8 = {
             this.m = 3;
             this.m = 12;
         }
+    },
+    map: {
+        0x20: (flag: number) => !!(flag & 0x80 ^ 0x80),
+        0x28: (flag: number) => !(flag & 0x80 ^ 0x80),
+        0x30: (flag: number) => !!(flag & 0x10 ^ 0x10),
+        0x38: (flag: number) => !(flag & 0x10 ^ 0x10)
     },
     bytes: 2
 } as InstructionMetaData;
