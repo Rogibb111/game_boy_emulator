@@ -12,8 +12,8 @@ export interface ActionData {
 }
 
 export interface InstructionMetaData {
-    m?: number;
-    t?: number;
+    m: number;
+    t: number;
     action: { (data: ActionData): void };
     z?: 0 | 1;
     n?: 0 | 1;
