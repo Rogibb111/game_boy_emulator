@@ -7,16 +7,6 @@ import Byte from '../models/data_sizes/Byte.js';
 import { InstructionMetaData } from './InstructionMetaData.js';
 import Word from '../models/data_sizes/Word.js';
 
-const BYTE_REGISTER_MAP = {
-    0x06: 'b',
-    0x0E: 'd',
-    0x16: 'h',
-    0x26: 'c',
-    0x2E: 'e',
-    0x36: 'l',
-    0x3E: 'a'
-};
-
 const BYTE_HL_REGISTER_MAP = {
     0x70: 'b',
     0x71: 'c',
@@ -76,9 +66,18 @@ export const LD_RB_NB = {
     m: 2,
     t: 8,
     action: ({ _r, opcode1, operand1 }): void => {
-        const reg = BYTE_REGISTER_MAP[opcode1.getVal()];
+        const reg = this.map[opcode1.getVal()];
 
         _r[reg] = operand1;
+    },
+    map: {
+        0x06: 'b',
+        0x0E: 'd',
+        0x16: 'h',
+        0x26: 'c',
+        0x2E: 'e',
+        0x36: 'l',
+        0x3E: 'a'
     },
     bytes: 2
 } as InstructionMetaData; 
