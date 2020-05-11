@@ -1,6 +1,5 @@
 import Address from '../models/data_types/Address.js';
 import MMU from '../MMU.js';
-import Instruction from '../models/data_types/Instruction.js';
 import { InstructionMetaData } from './InstructionMetaData.js';
 
 // Return from interrupt (called by handler)

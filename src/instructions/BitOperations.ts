@@ -3,8 +3,6 @@ import TwoByteCodeInstruction from '../models/data_types/TwoByteCodeInstruction.
 import Opcode from '../models/data_types/Opcode.js';
 import { InstructionMetaData } from './InstructionMetaData.js';
 
-
-
 let registerMap = ['b', 'c', 'd', 'e', 'h', 'l', 'hl', 'a'];
 registerMap = registerMap.concat(registerMap);
 
