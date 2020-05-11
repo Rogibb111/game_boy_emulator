@@ -51,7 +51,7 @@ export const LD_RW_NW = {
 export const LD_RB_NB = {
     m: 2,
     t: 8,
-    action: ({ _r, opcode1, operand1 }): void => {
+    action: function ({ _r, opcode1, operand1 }): void {
         const reg = this.map[opcode1.getVal()];
 
         _r[reg] = operand1;
@@ -80,7 +80,7 @@ export const LDH_C_A = {
 export const LD_HL_RB = {
     m: 2,
     t: 8,
-    action: ({ _r, opcode1 }) => {
+    action: function ({ _r, opcode1 }): void {
         const addr: Address = new Address(_r.h, _r.l);
         const reg: string = this.map[opcode1.getVal()];
 
