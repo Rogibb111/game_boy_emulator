@@ -104,3 +104,14 @@ export const LD_HL_RB = {
     },
     bytes: 1
 } as InstructionMetaData;
+
+export const LDH_NW_A = {
+    m: 3,
+    t: 12,
+    action:({ _r, operand1 }) => {
+        const address: Address = new Address(0xFF00).ADD(operand1);
+
+        MMU.wb(address, _r.a);
+    },
+    bytes: 2
+};
