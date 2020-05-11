@@ -94,7 +94,7 @@ class Z80 {
 
     public executeCurrentInstruction(): void {
         const opcode: Opcode = MMU.rb(this._r.pc);
-        const metaData: InstructionMetaData = this._map[opcode.getVal()];
+        const metaData: InstructionMetaData = { ...this._map[opcode.getVal()] };
         
         if (metaData.action) {
             switch(metaData.bytes - 1) {
