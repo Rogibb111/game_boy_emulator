@@ -40,7 +40,7 @@ export function RST40(_r) {
 
 export const JR_cc_e8 = {
     action: ({ opcode1, operand1,  _r }): void => {
-        const conditionMet = CONDITION_CODE_MAPS[opcode1.getVal()](_r.f);
+    const conditionMet = CONDITION_CODE_MAPS[opcode1.getVal()](_r.f);
 
     if (conditionMet) {
         _r.pc = _r.pc.ADD(operand1.getVal());
@@ -51,3 +51,11 @@ export const JR_cc_e8 = {
     },
     bytes: 2
 } as InstructionMetaData;
+
+export const CALL_NW = {
+    
+    action: ({ _r, operand1, operand2 }) => {
+        
+    },
+    bytes: 3
+}
