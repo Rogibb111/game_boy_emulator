@@ -7,12 +7,6 @@ import Byte from '../models/data_sizes/Byte.js';
 import { InstructionMetaData } from './InstructionMetaData.js';
 import Word from '../models/data_sizes/Word.js';
 
-const WORD_REGISTER_MAP = {
-    0x01: ['b', 'c'],
-    0x11: ['d', 'e'],
-    0x21: ['h', 'l']
-};
-
 const BYTE_REGISTER_MAP = {
     0x06: 'b',
     0x0E: 'd',
@@ -62,13 +56,18 @@ export const LD_HLD_A = {
 export const LD_RW_NW = {
     m: 3,
     t: 12,
-    action: ({ _r , opcode1, operand1, operand2 }): void  => {
-        const [upper, lower] = WORD_REGISTER_MAP[opcode1.getVal()];
+    action: function ({ _r , opcode1, operand1, operand2 }): void {
+        const [upper, lower] = this.map[opcode1.getVal()];
         const address: Address = new Address(operand1, operand2);
         const word: Word = MMU.rw(address);
 
         _r[lower] = word.getLastByte();
         _r[upper] = word.getFirstByte();
+    },
+    map: {
+        0x01: ['b', 'c'],
+        0x11: ['d', 'e'],
+        0x21: ['h', 'l']
     },
     bytes: 3
 } as InstructionMetaData; 
