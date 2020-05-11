@@ -31,10 +31,8 @@ export function RST40(_r) {
 }
 
 export const JR_cc_e8 = {
-    m: 2,
-    t: 8,
-    action: function ({ opcode1, operand1,  _r }): void {
-        const conditionMet = this.map[opcode1.getVal()](_r.f);
+    action: ({ opcode1, operand1,  _r }): void => {
+    const conditionMet = CONDITION_CODE_MAPS[opcode1.getVal()](_r.f);
 
         if (conditionMet) {
             _r.pc = _r.pc.ADD(operand1.getVal());
@@ -55,16 +53,9 @@ export const JR_cc_e8 = {
 } as InstructionMetaData;
 
 export const CALL_NW = {
-    m: 6,
-    t: 24,
-    action: function ({ _r, operand1, operand2 }): void {
-        const address: Address = new Address(operand1, operand2);
+    
+    action: ({ _r, operand1, operand2 }) => {
         
-        _r.sp = _r.sp.ADD(-2);
-        MMU.ww(_r.sp, _r.pc.ADD(this.bytes));
-        
-        this.pc = address;
-        this.bytes = 0;
     },
     bytes: 3
-} as InstructionMetaData;
+}

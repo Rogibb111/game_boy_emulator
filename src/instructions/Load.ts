@@ -102,17 +102,9 @@ export const LDH_NW_A = {
     m: 3,
     t: 12,
     action:({ _r, operand1 }) => {
-<<<<<<< HEAD
-        const address: Address = new Address(0xFF00).ADD(operand1.getVal());
-=======
         const address: Address = new Address(0xFF00).ADD(operand1);
->>>>>>> Adding LDH [n16],A instruction logic
 
         MMU.wb(address, _r.a);
     },
     bytes: 2
-<<<<<<< HEAD
 } as InstructionMetaData;
-=======
-};
->>>>>>> Adding LDH [n16],A instruction logic
