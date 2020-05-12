@@ -102,7 +102,7 @@ export const LDH_NW_A = {
     m: 3,
     t: 12,
     action:({ _r, operand1 }) => {
-        const address: Address = new Address(0xFF00).ADD(operand1);
+        const address: Address = new Address(0xFF00).ADD(operand1.getVal());
 
         MMU.wb(address, _r.a);
     },
