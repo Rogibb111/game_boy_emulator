@@ -6,7 +6,6 @@ import Byte from './models/data_sizes/Byte.js';
 import Opcode from './models/data_types/Opcode.js';
 import { InstructionMetaData } from './instructions/InstructionMetaData.js';
 import Word from './models/data_sizes/Word.js';
-import Operand from './models/data_types/Operand.js';
 
 const _clock = {
     m: 0, 
