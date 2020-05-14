@@ -118,6 +118,22 @@ const upper = {
 
 const lower = ['b', 'c', 'd', 'e', 'h', 'l', null, 'a'];
 
+export function setLoadRegToRegVal(setFunc): Object {
+    const map = {};
+    Object.keys(upper).forEach((upperStr) => {
+        upper[upperStr].forEach((upperVal, upperIndex) => {
+            if(upperVal){
+                lower.forEach((lowerVal, lowerIndex) => {
+                    if(lowerVal) {
+                        const lowerHalf = upperIndex ? lowerIndex + 8 : lowerIndex;
+                        this._map[Number(upperStr) << 4 + lowerHalf] = setFunc(upperVal, lowerVal); 
+                    }
+                });
+            }
+        });
+    });
+    return map;
+}
 
 export const LD_RB_RB = {
     m: 1,
@@ -127,17 +143,6 @@ export const LD_RB_RB = {
 
         _r[to] = _r[from];
     },
-    map: Object.keys(upper).reduce((acc, val) => {
-        upper[val].array.forEach((regTo: string, upperIndex: number) => {
-            lower.forEach((regFrom, lowerIndex) => {
-                const lowerHalf = upperIndex ? lowerIndex + 8 : lowerIndex;
-                if (val && regFrom) {
-                    acc[Number(val) << 4 + lowerHalf] = [regTo, regFrom]
-                }
-            });
-        });
-
-        return acc;
-    }, {}),
+    map: setLoadRegToRegVal((regTo, regFrom) => [regTo, regFrom]),
     bytes: 1
 } as InstructionMetaData;
