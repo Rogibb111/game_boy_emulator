@@ -75,12 +75,24 @@ class Z80 {
         0x2E: Instructions.LD_RB_NB,
         0x36: Instructions.LD_RB_NB,
         0x3E: Instructions.LD_RB_NB,
+        0x70: Instructions.LD_HL_RB,
+        0x71: Instructions.LD_HL_RB,
+        0x72: Instructions.LD_HL_RB,
+        0x73: Instructions.LD_HL_RB,
+        0x74: Instructions.LD_HL_RB,
+        0x75: Instructions.LD_HL_RB,
+        0x77: Instructions.LD_HL_RB,
+
         0xCB: this._execute16BitInstruction
     };
 
     private _16BitInstructions = new Array(256);
 
     constructor() {
+        const ldRbRbMap = Instructions.setLoadRegToRegVal(() => Instructions.LD_RB_RB);
+        
+        this._map = { ...this._map, ...ldRbRbMap };
+
         for (let i = 0x40; i <= 0x7f; i++) {
             this. _16BitInstructions[i] = Instructions.BITu3r8;
         }
