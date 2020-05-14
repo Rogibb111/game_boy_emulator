@@ -56,6 +56,8 @@ class Z80 {
     public _map = {
         0x83: Instructions.ADDr_e,
         0xB8: Instructions.CPr_b,
+        0xFE: Instructions.CP_A_NB,
+        0xCD: Instructions.CALL_NW,
         0xF3: Instructions.DI,
         0xFB: Instructions.EI,
         0x00: Instructions.NOP,
@@ -65,6 +67,16 @@ class Z80 {
         0x31: Instructions.LDSPnn,
         0xFA: Instructions.LD_A_NW,
         0xAF: Instructions.XORA,
+        0x03: Instructions.INC_NW,
+        0x13: Instructions.INC_NW,
+        0x23: Instructions.INC_NW,
+        0x04: Instructions.INC_RB, 
+        0x0C: Instructions.INC_RB,
+        0x14: Instructions.INC_RB,
+        0x1C: Instructions.INC_RB,
+        0x24: Instructions.INC_RB,
+        0x2C: Instructions.INC_RB,
+        0x3C: Instructions.INC_RB,
         0x01: Instructions.LD_RW_NW,
         0x11: Instructions.LD_RW_NW,
         0x21: Instructions.LD_RW_NW,
@@ -82,7 +94,13 @@ class Z80 {
         0x74: Instructions.LD_HL_RB,
         0x75: Instructions.LD_HL_RB,
         0x77: Instructions.LD_HL_RB,
-
+        0x32: Instructions.LD_HLD_A,
+        0xE2: Instructions.LDH_C_A,
+        0xE0: Instructions.LDH_NW_A,
+        0x20: Instructions.JR_cc_e8, 
+        0x28: Instructions.JR_cc_e8,
+        0x30: Instructions.JR_cc_e8,
+        0x38: Instructions.JR_cc_e8,
         0xCB: this._execute16BitInstruction
     };
 
