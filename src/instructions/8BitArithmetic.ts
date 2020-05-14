@@ -3,6 +3,7 @@ import Byte from '../models/data_sizes/Byte.js';
 import Instruction from '../models/data_types/Instruction.js';
 import Byted from '../models/data_sizes/Byte.js';
 import Opcode from '../models/data_types/Opcode.js';
+import { InstructionMetaData } from './InstructionMetaData.js';
 
 const INC_REGISTER_MAP = {
     0x04: 'b',
@@ -66,3 +67,24 @@ export function INC_RB(_r: Registers, instruction: Instruction) {
 
     _r[reg] = val.AND(255);
 }
+
+export const CP_A_NB = {
+    m: 2,
+    t: 8,
+    action: ({ _r, operand1 }) => {
+        const result: Byte = _r.a.ADD(-operand1.getVal());
+        
+        _r.setN(1);
+
+        if (!result.AND(255).getVal()) {
+            _r.setZ(1);
+        }
+        if (result.getLastNibble().getVal() > 15) {
+            _r.setH(1)
+        }
+        if (operand1.getVal() > _r.a.getVal()) {
+            _r.setC(1);
+        }
+    },
+    bytes: 2
+} as InstructionMetaData;
