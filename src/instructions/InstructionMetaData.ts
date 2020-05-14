@@ -20,5 +20,5 @@ export interface InstructionMetaData {
     c?: 0 | 1;
     ime?: 0 | 1;
     bytes: number;
-    map: object | Array<number> | {(opcode: Opcode): number};
+    map: object | Array<number | string> | {(opcode: Opcode): number};
 }
