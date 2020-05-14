@@ -108,3 +108,36 @@ export const LDH_NW_A = {
     },
     bytes: 2
 } as InstructionMetaData;
+
+const upper = {
+    4: ['b', 'c'],
+    5: ['d', 'e'],
+    6: ['h', 'l'],
+    7: [null, 'a']
+};
+
+const lower = ['b', 'c', 'd', 'e', 'h', 'l', null, 'a'];
+
+
+export const LD_RB_RB = {
+    m: 1,
+    t: 4,
+    action: function ({ _r, operand1 }) {
+        const [to, from] = this.map[operand1.getVal()];
+
+        _r[to] = _r[from];
+    },
+    map: Object.keys(upper).reduce((acc, val) => {
+        upper[val].array.forEach((regTo: string, upperIndex: number) => {
+            lower.forEach((regFrom, lowerIndex) => {
+                const lowerHalf = upperIndex ? lowerIndex + 8 : lowerIndex;
+                if (val && regFrom) {
+                    acc[Number(val) << 4 + lowerHalf] = [regTo, regFrom]
+                }
+            });
+        });
+
+        return acc;
+    }, {}),
+    bytes: 1
+} as InstructionMetaData;
