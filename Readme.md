@@ -1,3 +1,4 @@
+![Build](https://github.com/Rogibb111/GameBoy-Emulator-Browser/workflows/Build/badge.svg)
 # Gameboy Emulator 
 ## A browser based GB emulator for the modern world
 
