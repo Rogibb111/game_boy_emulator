@@ -77,6 +77,8 @@ class Z80 {
         0x24: Instructions.INC_RB,
         0x2C: Instructions.INC_RB,
         0x3C: Instructions.INC_RB,
+        0x0A: Instructions.LD_A_RW,
+        0x1A: Instructions.LD_A_RW,
         0x01: Instructions.LD_RW_NW,
         0x11: Instructions.LD_RW_NW,
         0x21: Instructions.LD_RW_NW,
