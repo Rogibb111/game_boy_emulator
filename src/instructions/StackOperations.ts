@@ -22,9 +22,9 @@ export const POPHL = {
     t: 12,
     action: ({ _r }) => {
         _r.l = MMU.rb(_r.sp);              // Read L
-        _r.sp = _r.sp.ADD(0);              // Move back up the stack
+        _r.sp = _r.sp.ADD(1);              // Move back up the stack
         _r.h = MMU.rb(_r.sp);              // Read H
-        _r.sp = _r.sp.ADD(0);              // Move back up the stack
+        _r.sp = _r.sp.ADD(1);              // Move back up the stack
     },
     bytes: 1
 };
@@ -32,8 +32,8 @@ export const POPHL = {
 export const LDSPnn = {
     m: 4,
     t: 16,
-    action: ({ _r }) => {
-        _r.sp = new Address(MMU.rw(_r.pc.ADD(1)));       // Load up next word in memory after opcode and store in stack pointer     
-        _r.pc = this._r.pc.ADD(2);                            // Advance PC
-    }
+    action: ({ _r, operand1, operand2 }) => {
+        _r.sp = new Address(operand1, operand2);       // Load up next word in memory after opcode and store in stack pointer     
+    },
+    bytes: 3
 };

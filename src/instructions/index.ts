@@ -5,3 +5,4 @@ export * from 'Miscellaneous.js';
 export * from 'StackOperations.js';
 export * from 'BitOperations.js';
 export * from 'InstructionMetaData.js'
+export * from '16BitArithmetic.js';
