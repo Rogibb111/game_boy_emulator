@@ -160,3 +160,17 @@ export const LD_A_RW = {
     map: ['bc', 'de'],
     bytes: 1
 } as InstructionMetaData;
+
+export const LD_HLP_A = {
+    m: 2,
+    t: 8,
+    action: ({ _r }): void => {
+        const address = new Address(_r.h, _r.l);
+        const newAddr = address.ADD(1);
+        MMU.wb(address, _r.a);
+
+        _r.h = address.getFirstByte();
+        _r.l = address.getLastByte();
+    },
+    bytes: 1   
+} as InstructionMetaData;

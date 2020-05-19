@@ -97,6 +97,7 @@ class Z80 {
         0x75: Instructions.LD_HL_RB,
         0x77: Instructions.LD_HL_RB,
         0x32: Instructions.LD_HLD_A,
+        0x22: Instructions.LD_HLP_A,
         0xE2: Instructions.LDH_C_A,
         0xE0: Instructions.LDH_NW_A,
         0x20: Instructions.JR_cc_e8, 
