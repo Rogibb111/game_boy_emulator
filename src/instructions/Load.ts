@@ -169,8 +169,19 @@ export const LD_HLP_A = {
         const newAddr = address.ADD(1);
         MMU.wb(address, _r.a);
 
-        _r.h = address.getFirstByte();
-        _r.l = address.getLastByte();
+        _r.h = newAddr.getFirstByte();
+        _r.l = newAddr.getLastByte();
     },
     bytes: 1   
+} as InstructionMetaData;
+
+export const LD_NW_A = {
+    m: 4,
+    t: 16,
+    action: ({ _r, opcode1, opcode2 }) => {
+        const addr: Address = new Address(opcode1, opcode2);
+
+        MMU.wb(addr, _r.a);
+    },
+    bytes: 3
 } as InstructionMetaData;
