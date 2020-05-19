@@ -2,6 +2,7 @@ import MMU from '../MMU.js';
 import Address from '../models/data_types/Address.js';
 import { InstructionMetaData } from './InstructionMetaData.js';
 import Word from '../models/data_sizes/Word.js';
+import Operand from '../models/data_types/Operand.js';
 
 // Read a byte from absolute location into A (LD A, addr)
 export const LD_A_NW = {
@@ -101,7 +102,7 @@ export const LD_HL_RB = {
 export const LDH_NW_A = {
     m: 3,
     t: 12,
-    action:({ _r, operand1 }) => {
+    action:({ _r, operand1 }): void => {
         const address: Address = new Address(0xFF00).ADD(operand1.getVal());
 
         MMU.wb(address, _r.a);
@@ -138,11 +139,38 @@ export function setLoadRegToRegVal(setFunc): Object {
 export const LD_RB_RB = {
     m: 1,
     t: 4,
-    action: function ({ _r, operand1 }) {
-        const [to, from] = this.map[operand1.getVal()];
+    action: function ({ _r, opcode1 }): void {
+        const [to, from] = this.map[opcode1.getVal()];
 
         _r[to] = _r[from];
     },
-    map: setLoadRegToRegVal((regTo, regFrom) => [regTo, regFrom]),
+    map: setLoadRegToRegVal((regTo: string, regFrom: string) => [regTo, regFrom]),
     bytes: 1
+} as InstructionMetaData;
+
+export const LD_A_RW = {
+    m: 2,
+    t: 8,
+    action: function({ _r, opcode1 }): void {
+        const [upper, lower] = this.map[opcode1.getVal() >> 4];
+        const address: Address = new Address(_r[upper], _r[lower]);
+
+        _r.a = MMU.rb(address);
+    },
+    map: ['bc', 'de'],
+    bytes: 1
+} as InstructionMetaData;
+
+export const LD_HLP_A = {
+    m: 2,
+    t: 8,
+    action: ({ _r }): void => {
+        const address = new Address(_r.h, _r.l);
+        const newAddr = address.ADD(1);
+        MMU.wb(address, _r.a);
+
+        _r.h = address.getFirstByte();
+        _r.l = address.getLastByte();
+    },
+    bytes: 1   
 } as InstructionMetaData;
