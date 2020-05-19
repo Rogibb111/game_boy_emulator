@@ -105,3 +105,31 @@ export const CP_A_NB = {
     },
     bytes: 2
 } as InstructionMetaData;
+
+export const DEC_RB = {
+    m: 1,
+    t: 4,
+    action: function ({ _r, opcode1 }) {
+        const reg = this.map[opcode1.getVal()];
+        const result = _r[reg].ADD(-1);
+
+        _r.setN(1);
+
+        if (!result.AND(255).getVal()) {
+            _r.setZ(1);
+        }
+        if (result.getLastNibble().getVal() > 15) {
+            _r.setH(1)
+        }
+    },
+    map: {
+        0x05: 'b',
+        0x15: 'd',
+        0x25: 'h',
+        0x0D: 'c',
+        0x1D: 'e',
+        0x2D: 'l',
+        0x3D: 'a'
+    },
+    bytes: 1
+} as InstructionMetaData;
