@@ -113,6 +113,13 @@ class Z80 {
         0x30: Instructions.JR_cc_e8,
         0x38: Instructions.JR_cc_e8,
         0x18: Instructions.JR_EB,
+        0x90: Instructions.SUB_A_RB,
+        0x91: Instructions.SUB_A_RB,
+        0x92: Instructions.SUB_A_RB,
+        0x93: Instructions.SUB_A_RB,
+        0x94: Instructions.SUB_A_RB,
+        0x95: Instructions.SUB_A_RB,
+        0x97: Instructions.SUB_A_RB,
         0xCB: this._execute16BitInstruction
     };
 
