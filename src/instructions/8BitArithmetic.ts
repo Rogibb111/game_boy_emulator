@@ -133,3 +133,26 @@ export const DEC_RB = {
     },
     bytes: 1
 } as InstructionMetaData;
+
+export const SUB_A_RB = {
+    m: 1,
+    t: 4,
+    action: function({ _r, opcode1 }) {
+        const reg: string = this.map[opcode1.getVal() & 0xF];
+        const result = _r.a.ADD(-_r[reg].getVal());
+
+        _r.setN(1);
+
+        if (!result.AND(255).getVal()) {
+            _r.setZ(1);
+        }
+        if (result.getLastNibble().getVal() > 15) {
+            _r.setH(1)
+        }
+        if (_r[reg].getVal() > _r.a.getVal()) {
+            _r.setC(1);
+        }
+    },
+    map: ['b', 'c', 'd', 'e', 'h', 'l', null, 'a'],
+    bytes: 1
+} as InstructionMetaData;
