@@ -68,3 +68,13 @@ export const CALL_NW = {
     },
     bytes: 3
 } as InstructionMetaData;
+
+export const JR_EB = {
+    m:3,
+    t: 12,
+    action: function ({ _r, operand1 }): void {
+        _r.pc = _r.pc.ADD(this.bytes).ADD(operand1.getVal());
+        this.bytes = 0;
+    },
+    bytes: 2
+} as InstructionMetaData;
