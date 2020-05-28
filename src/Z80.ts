@@ -6,6 +6,7 @@ import Byte from './models/data_sizes/Byte.js';
 import Opcode from './models/data_types/Opcode.js';
 import { InstructionMetaData } from './instructions/InstructionMetaData.js';
 import Word from './models/data_sizes/Word.js';
+import { RL_r8 } from 'instructions/index';
 
 const _clock = {
     m: 0, 
@@ -69,7 +70,6 @@ class Z80 {
         0xFB: Instructions.EI,
         0x00: Instructions.NOP,
         0xE1: Instructions.POPHL,
-        0xC5: Instructions.PUSHBC,
         0xD9: Instructions.RETI,
         0x31: Instructions.LDSPnn,
         0xFA: Instructions.LD_A_NW,
@@ -113,6 +113,11 @@ class Z80 {
         0x30: Instructions.JR_cc_e8,
         0x38: Instructions.JR_cc_e8,
         0x18: Instructions.JR_EB,
+        0xC5: Instructions.PUSH_RW,
+        0xD5: Instructions.PUSH_RW,
+        0xE5: Instructions.PUSH_RW,
+        0xF5: Instructions.PUSH_RW,
+        0x17: Instructions.RLA,
         0x90: Instructions.SUB_A_RB,
         0x91: Instructions.SUB_A_RB,
         0x92: Instructions.SUB_A_RB,
@@ -131,7 +136,14 @@ class Z80 {
         this._map = { ...this._map, ...ldRbRbMap };
 
         for (let i = 0x40; i <= 0x7f; i++) {
-            this. _16BitInstructions[i] = Instructions.BITu3r8;
+            this._16BitInstructions[i] = Instructions.BITu3r8;
+        }
+        if (Array.isArray(Instructions.RL_r8.map)) {
+            Instructions.RL_r8.map.forEach((reg, index) => {
+                if(reg) {
+                    this._16BitInstructions[0x10 + index] = RL_r8;
+                }
+            });
         }
     }
 
