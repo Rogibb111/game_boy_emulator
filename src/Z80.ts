@@ -6,6 +6,7 @@ import Byte from './models/data_sizes/Byte.js';
 import Opcode from './models/data_types/Opcode.js';
 import { InstructionMetaData } from './instructions/InstructionMetaData.js';
 import Word from './models/data_sizes/Word.js';
+import { RL_r8 } from 'instructions/index';
 
 const _clock = {
     m: 0, 
@@ -134,7 +135,14 @@ class Z80 {
         this._map = { ...this._map, ...ldRbRbMap };
 
         for (let i = 0x40; i <= 0x7f; i++) {
-            this. _16BitInstructions[i] = Instructions.BITu3r8;
+            this._16BitInstructions[i] = Instructions.BITu3r8;
+        }
+        if (Array.isArray(Instructions.RL_r8.map)) {
+            Instructions.RL_r8.map.forEach((reg, index) => {
+                if(reg) {
+                    this._16BitInstructions[0x10 + index] = RL_r8;
+                }
+            });
         }
     }
 
