@@ -117,6 +117,7 @@ class Z80 {
         0xD5: Instructions.PUSH_RW,
         0xE5: Instructions.PUSH_RW,
         0xF5: Instructions.PUSH_RW,
+        0x17: Instructions.RLA,
         0x90: Instructions.SUB_A_RB,
         0x91: Instructions.SUB_A_RB,
         0x92: Instructions.SUB_A_RB,
