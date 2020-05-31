@@ -1,19 +1,9 @@
 import Registers from '../models/Registers.js';
 import Byte from '../models/data_sizes/Byte.js';
-import Instruction from '../models/data_types/Instruction.js';
-import Byted from '../models/data_sizes/Byte.js';
-import Opcode from '../models/data_types/Opcode.js';
 import { InstructionMetaData } from './InstructionMetaData.js';
+import Address from '../models/data_types/Address.js';
+import MMU from '../MMU.js';
 
-const INC_REGISTER_MAP = {
-    0x04: 'b',
-    0x0C: 'c',
-    0x14: 'd',
-    0x1C: 'e',
-    0x24: 'h',
-    0x2C: 'l',
-    0x3C: 'a',
-};
 
 // TODO: This needs to be removed when Add r8, r8 gets created
 // Add E to A, leaving result in A (ADD A, E)
@@ -154,5 +144,28 @@ export const SUB_A_RB = {
         }
     },
     map: ['b', 'c', 'd', 'e', 'h', 'l', null, 'a'],
+    bytes: 1
+} as InstructionMetaData;
+
+export const CP_A_HL = {
+    m: 2,
+    t: 8,
+    action: ({ _r }): void => {
+        const addr: Address = new Address(_r.h, _r.l);
+        const cmprVal: number = MMU.rb(addr).getVal();
+        const result: Byte = _r.a.ADD(-cmprVal);
+        
+        _r.setN(1);
+
+        if (!result.AND(255).getVal()) {
+            _r.setZ(1);
+        }
+        if (result.getLastNibble().getVal() > 15) {
+            _r.setH(1)
+        }
+        if (cmprVal > _r.a.getVal()) {
+            _r.setC(1);
+        }
+    },
     bytes: 1
 } as InstructionMetaData;
