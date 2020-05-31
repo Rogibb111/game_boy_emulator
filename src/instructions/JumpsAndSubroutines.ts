@@ -78,3 +78,13 @@ export const JR_EB = {
     },
     bytes: 2
 } as InstructionMetaData;
+
+export const RET = {
+    m: 4,
+    t: 16,
+    action: ({ _r }): void => {
+        _r.pc = new Address(MMU.rw(_r.sp));
+        _r.sp = _r.sp.ADD(2);
+    },
+    bytes: 1
+} as InstructionMetaData;
