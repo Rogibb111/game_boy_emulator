@@ -57,6 +57,7 @@ class Z80 {
     public _map = {
         0x83: Instructions.ADDr_e,
         0xB8: Instructions.CPr_b,
+        0xBE: Instructions.CP_A_HL,
         0xFE: Instructions.CP_A_NB,
         0xCD: Instructions.CALL_NW,
         0x05: Instructions.DEC_RB, 
