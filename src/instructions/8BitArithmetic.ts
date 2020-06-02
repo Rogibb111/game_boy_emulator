@@ -169,3 +169,7 @@ export const CP_A_HL = {
     },
     bytes: 1
 } as InstructionMetaData;
+
+export const ADD_A_HL = {
+    
+} as InstructionMetaData;
