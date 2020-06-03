@@ -169,3 +169,28 @@ export const CP_A_HL = {
     },
     bytes: 1
 } as InstructionMetaData;
+
+export const ADD_A_HL = {
+    m: 2,
+    t: 8,
+    action: ({ _r }) => {
+        const addr: Address = new Address(_r.h, _r.l);
+        const addend: number = MMU.rb(addr).getVal();
+        const result: Byte = _r.a.ADD(addend);
+
+        _r.setN(0);
+
+        if (!result.AND(255).getVal()) {
+            _r.setZ(1);
+        }
+        if (result.getLastNibble().getVal() > 15) {
+            _r.setH(1)
+        }
+        if (addend > _r.a.getVal()) {
+            _r.setC(1);
+        }
+
+        _r.a = result.AND(0x255);
+    },
+    bytes: 1
+} as InstructionMetaData;
