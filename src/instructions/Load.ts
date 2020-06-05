@@ -127,7 +127,7 @@ export function setLoadRegToRegVal(setFunc): Object {
                 lower.forEach((lowerVal, lowerIndex) => {
                     if(lowerVal) {
                         const lowerHalf = upperIndex ? lowerIndex + 8 : lowerIndex;
-                        this._map[Number(upperStr) << 4 + lowerHalf] = setFunc(upperVal, lowerVal); 
+                        map[Number(upperStr) << 4 + lowerHalf] = setFunc(upperVal, lowerVal); 
                     }
                 });
             }
