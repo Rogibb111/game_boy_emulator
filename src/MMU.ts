@@ -2,7 +2,7 @@ import Z80 from './Z80.js';
 import GPU from './GPU.js';
 import KEY from './KEY.js';
 import MemoryBank, { BankTypes } from './models/MemoryBank.js';
-import Address from './models/data_types/Address';
+import Address from './models/data_types/Address.js';
 import MBC from './models/MBC.js';
 import Byte from './models/data_sizes/Byte.js';
 import Word from './models/data_sizes/Word.js';

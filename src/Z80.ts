@@ -1,7 +1,7 @@
-import MMU from 'MMU';
-import Address from 'models/data_types/Address';
-import Registers from 'models/Registers';
-import * as Instructions  from 'instructions/index';
+import MMU from './MMU.js';
+import Address from './models/data_types/Address.js';
+import Registers from './models/Registers.js';
+import * as Instructions  from './instructions/index.js';
 import Byte from './models/data_sizes/Byte.js';
 import Opcode from './models/data_types/Opcode.js';
 import { InstructionMetaData } from './instructions/InstructionMetaData.js';
@@ -166,7 +166,7 @@ class Z80 extends Logger implements LoggerInterface {
         if (Array.isArray(Instructions.RL_r8.map)) {
             Instructions.RL_r8.map.forEach((reg, index) => {
                 if(reg) {
-                    this._16BitInstructions[0x10 + index] = RL_r8;
+                    this._16BitInstructions[0x10 + index] = Instructions.RL_r8;
                 }
             });
         }
