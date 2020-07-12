@@ -1,3 +1,4 @@
 export interface Logger {
-    keys: string[]
+    properties?: string[],
+    functions?: string[]
 }
