@@ -1,24 +1,27 @@
 import Aggregator from "./Aggregator.js";
 
 const proxyHandler = {
-	set(obj: { properties: Array<string> }, prop: string, value: any) {
+	set(obj: { properties: Array<string>, id: number }, prop: string, value: any) {
 		if (prop === 'test') {
 			throw new Error('Trying to overwrite class name: this property is necessary for logging');
 		}
 
 		if (obj.properties.includes(prop)) {
-			Aggregator.logProperty(obj.constructor.name, prop, value);
+			Aggregator.logProperty(obj.id, obj.constructor.name, prop, value);
 		}
 		
 		obj[prop] = value;
 	}
 };
 
+let count = 0;
+
 
 export default class Logger {
    
 	functions: Array<string>;
 	properties: Array<string>;
+	id: number = null;
 
     setupLogging() {
         if (this.hasOwnProperty('properties')) {
@@ -29,9 +32,9 @@ export default class Logger {
 				const func = this[funcName];
 
 				const functionHandler = (...args: any) => {
-					Aggregator.logBeforeFunc(this.constructor.name, funcName, args);
+					const funcMapkey = Aggregator.logBeforeFunc(args);
 					const ret = func(args);
-					Aggregator.logAfterFunc(this.constructor.name, funcName, ret);
+					Aggregator.logAfterFunc(this.id, this.constructor.name, funcName, funcMapkey, ret);
 
 					return ret;
 				}
@@ -39,5 +42,7 @@ export default class Logger {
 				Object.assign(this, { [funcName]: functionHandler });
 			}
         }
+		count += 1;
+		this.id = count;
     }
 }
