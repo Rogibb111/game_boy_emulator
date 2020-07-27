@@ -2,8 +2,10 @@ import Address from './models/data_types/Address.js';
 import Z80 from './Z80.js';
 import MemoryBank, { BankTypes } from './models/MemoryBank.js';
 import Byte from './models/data_sizes/Byte.js';
+import Logger from './logging/implementations/Logger.js';
+import LoggerInterface from './logging/interfaces/Logger.js';
 
-class GPU {
+class GPU extends Logger implements LoggerInterface {
     _canvas: CanvasRenderingContext2D = null;
     _scrn: ImageData = null;
     _mode = 0;
@@ -26,7 +28,28 @@ class GPU {
     };
     _objdata = [];
 
+	properties = [
+		'_mode',
+		'_bgmap',
+		'_bgtile',
+		'_switchbg',
+		'_switchobj',
+		'_switchlcd'
+	];
+
+	functions = [
+		'reset',
+		'updateTile',
+		'rb',
+		'wb',
+		'step',
+		'renderScan'
+	];
+
+
     constructor() {
+		super();
+		this.setupLogging();
         this.reset();
     }
 

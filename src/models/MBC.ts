@@ -9,13 +9,15 @@
  * being addressed by that open range;
  */
 import Byte from './data_sizes/Byte.js';
+import Logger from '../logging/implementations/Logger.js';
+import LoggerInterface from '../logging/interfaces/Logger.js';
 
 export enum MBCType{
     MBC0,
     MBC1
 }
 
-export default class MBC {
+export default class MBC extends Logger implements LoggerInterface {
     
     private _activeRomBank = 0;
     private _activeRamBank = 0;
@@ -23,7 +25,28 @@ export default class MBC {
     private _mode = 0;
     private _ramOn = false;
 
+	// Properties and Functions to Log
+	properties = [
+		'_activeRomBank',
+		'_activeRamBank',
+		'_type',
+		'_mode',
+		'_ramOn'
+	];
+	functions = [
+		'getActiveRom',
+		'getActiveRam',
+		'setActiveRomBank',
+		'setActiveRomBankSet',
+		'setActiveRam',
+		'setRamOn',
+		'getMode',
+		'setMode'
+	];
+
     constructor(mbcType: MBCType) {
+		super();
+		this.setupLogging();
         this._type = mbcType;        
     }
 
