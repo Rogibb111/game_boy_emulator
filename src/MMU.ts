@@ -6,10 +6,13 @@ import Address from './models/data_types/Address';
 import MBC from './models/MBC.js';
 import Byte from './models/data_sizes/Byte.js';
 import Word from './models/data_sizes/Word.js';
+import Logger from './logging/implementations/Logger.js';
+import LoggerInterface from './logging/interfaces/Logger.js';
+
 
 const CART_TYPE_ADDR = new Address(0x0147);
 
-class MMU {
+class MMU extends Logger implements LoggerInterface {
     // Flag indicating BIOS is mapped in
     // BIOS is unmapped with the first instruction above 0x00FF
     _inbios = 1;
@@ -48,7 +51,19 @@ class MMU {
     // Copy of the ROM's cartridge-type value
     _carttype = 0;
 
+	// Properties and Functions to Log
+	properties = ['inbios'];
+	functions = [
+		'rb',
+		'wb',
+		'rw',
+		'ww',
+		'load',
+		'reset'
+	];
     constructor() {
+		super();
+		this.setupLogging();
         this.reset();
     }
 

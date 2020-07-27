@@ -135,6 +135,17 @@ class Z80 {
     };
 
     private _16BitInstructions = new Array(256);
+	
+	// Properties and Functions to Log
+	properties = [
+		'a','b','c','d','e','l','f','h','m','t',
+		'pc', 'sp', 'ime'
+	];
+	functions = [
+		'_execute16BitInstructions',
+		'executeCurrentInstruction',
+		'reset'
+	];
 
     constructor() {
         const ldRbRbMap = Instructions.setLoadRegToRegVal(() => Instructions.LD_RB_RB);

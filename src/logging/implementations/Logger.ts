@@ -1,7 +1,16 @@
 import Aggregator from "./Aggregator.js";
 
 const proxyHandler = {
-	set(obj: { properties: Array<string>, id: number }, prop: string, value: any) {
+    get(obj: any, prop: string): any {
+        const propVal = obj[prop];
+
+        if (typeof propVal === 'object') {
+            return new Proxy(propVal, proxyHandler);
+        }
+        return propVal; 
+    },	
+
+	set(obj: { properties: Array<string>, id: number }, prop: string, value: any): boolean {
 		if (prop === 'test') {
 			throw new Error('Trying to overwrite class name: this property is necessary for logging');
 		}
@@ -11,6 +20,7 @@ const proxyHandler = {
 		}
 		
 		obj[prop] = value;
+		return true;
 	}
 };
 
