@@ -17,6 +17,10 @@ const registers = {
 
 const registerNames: Array<string> = Object.keys(registers);
 
+function log(className: string, logString: string): void {
+	console.log(`[${className}]: 	${logString}`);		
+}
+
 function printRegisters() {
 	console.log('<------REGISTERS------>');
 	for (let key in registerNames) {
@@ -38,11 +42,17 @@ export default class Console implements Display {
 	logProperties(classId: number, className: string, name: string, value: any) {
 		if (className === 'Z80' && registerNames.includes(name)) {
 			registers[name] = value;
-			printRegisters();
 		}
 	}
 
 	logFunctions(classId: number, className: string, name: string, start: Date, end: Date, args: any, ret: any) {
+		log(className, `!!!!!!!!!!  Ran ${name} function!!!!!!!!!`);
 		
+		if (name === 'executeInstructionAction') {
+			const instructionMetaData = args[0];
+			log(className, `InstructionMetaData: ${JSON.stringify(instructionMetaData)}`);
+		} else if (name === 'executeCurrentInstruction') {
+			printRegisters();	
+		}
 	}
 }
