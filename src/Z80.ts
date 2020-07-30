@@ -144,6 +144,7 @@ class Z80 {
 	functions = [
 		'_execute16BitInstructions',
 		'executeCurrentInstruction',
+		'executeInstructionAction',
 		'reset'
 	];
 
@@ -173,6 +174,14 @@ class Z80 {
         const opcode: Opcode = MMU.rb(this._r.pc);
         const metaData: InstructionMetaData = { ...this._map[opcode.getVal()] };
         
+		this.executeInstructionAction(metaData, opcode);
+
+        this._r.pc = this._r.pc.ADD(metaData.bytes).AND(65535);
+        this._clock.m += metaData.m;
+        this._clock.t += metaData.t;
+    }
+
+	private executeInstructionAction(metaData: InstructionMetaData, opcode: Opcode): void {
         if (metaData.action) {
             switch(metaData.bytes - 1) {
                 case 0: 
@@ -203,10 +212,7 @@ class Z80 {
                 default:
             }
         }
-        this._r.pc = this._r.pc.ADD(metaData.bytes).AND(65535);
-        this._clock.m += metaData.m;
-        this._clock.t += metaData.t;
-    }
+	}
     
     public reset(): void {
         this._clock = copy(_clock);
