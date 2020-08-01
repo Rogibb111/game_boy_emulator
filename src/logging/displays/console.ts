@@ -1,6 +1,6 @@
 import Display, { LogTypes }  from '../interfaces/Display.js';
 
-const registers = {
+let registers = {
 	'a': 0,
 	'b': 0,
 	'c': 0,
@@ -23,8 +23,9 @@ function log(className: string, logString: string): void {
 
 function printRegisters() {
 	console.log('<------REGISTERS------>');
-	for (let key in registerNames) {
-		console.log(`${key}: ${registers[key]}`);
+	for (let key of registerNames) {
+		const val = registers[key].getVal ? registers[key].getVal() : registers[key];
+		console.log(`${key}: 0x${val.toString(16)}`);
 	}
 }
 
@@ -36,12 +37,18 @@ export default class Console implements Display {
 				LogTypes.properties,
 				LogTypes.functions
 			]
+		},
+		{
+			classType: 'MMU',
+			logTypes: [
+				LogTypes.properties,
+			]
 		}
 	];	
 
 	logProperties(classId: number, className: string, name: string, value: any) {
-		if (className === 'Z80' && registerNames.includes(name)) {
-			registers[name] = value;
+		if (className === 'Z80' && name === '_r') {
+			registers = value;
 		}
 	}
 

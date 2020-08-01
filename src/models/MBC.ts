@@ -17,7 +17,7 @@ export enum MBCType{
     MBC1
 }
 
-export default class MBC extends Logger implements LoggerInterface {
+export default class MBC {
     
     private _activeRomBank = 0;
     private _activeRamBank = 0;
@@ -45,8 +45,8 @@ export default class MBC extends Logger implements LoggerInterface {
 	];
 
     constructor(mbcType: MBCType) {
-		super();
-		this.setupLogging();
+		//super();
+		//this.setupLogging();
         this._type = mbcType;        
     }
 
