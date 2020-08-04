@@ -1,29 +1,5 @@
 import Aggregator from "./Aggregator.js";
 
-const proxyHandler = {
-    get(obj: any, prop: string): any {
-        const propVal = obj[prop];
-
-        if (typeof propVal === 'object') {
-            return new Proxy(propVal, proxyHandler);
-        }
-        return propVal; 
-    },	
-
-	set(obj: { properties: Array<string>, id: number }, prop: string, value: any): boolean {
-		if (prop === 'test') {
-			throw new Error('Trying to overwrite class name: this property is necessary for logging');
-		}
-
-		if (obj.properties.includes(prop)) {
-			Aggregator.logProperty(obj.id, obj.constructor.name, prop, value);
-		}
-		
-		obj[prop] = value;
-		return true;
-	}
-};
-
 let count = 0;
 
 
@@ -35,15 +11,36 @@ export default class Logger {
 
     setupLogging() {
         if (this.hasOwnProperty('properties')) {
-        	Object.assign(this, proxyHandler);
+			for (let propName of this.properties) {
+				if (this.hasOwnProperty(propName)) {
+					const privatePropName = `_${propName}`;
+					
+					this[privatePropName] = this[propName];
+					
+					Object.defineProperty(this, propName, {
+						get: function() {
+							Aggregator.logProperty(this.id, this.constructor.name, propName, this[privatePropName]);
+							return this[privatePropName];
+						},
+
+						set: function(val) {
+							Aggregator.logProperty(this.id, this.constructor.name, propName, val);
+							this[privatePropName] = val;
+						}
+					});
+
+				} else {
+					throw new Error(`Trying to log property [${propName}] that does not exist on ${this.constructor.name}`); 
+				}
+			}
 		}
         if (this.hasOwnProperty('functions')) {
-			for (let funcName in this.functions) {
+			for (let funcName of this.functions) {
 				const func = this[funcName];
 
 				const functionHandler = (...args: any) => {
 					const funcMapkey = Aggregator.logBeforeFunc(args);
-					const ret = func(args);
+					const ret = func.apply(this, args);
 					Aggregator.logAfterFunc(this.id, this.constructor.name, funcName, funcMapkey, ret);
 
 					return ret;

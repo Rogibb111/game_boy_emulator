@@ -6,12 +6,16 @@ import Byte from './models/data_sizes/Byte.js';
 import Opcode from './models/data_types/Opcode.js';
 import { InstructionMetaData } from './instructions/InstructionMetaData.js';
 import Word from './models/data_sizes/Word.js';
-import { RL_r8 } from 'instructions/index';
+import { RL_r8 } from './instructions/index.js';
+import Logger from './logging/implementations/Logger.js';
+import LoggerInterface from './logging/interfaces/Logger.js';
 
-const _clock = {
-    m: 0, 
-    t: 0
-};
+function createClock(): { m: number, t: number }  {
+	return {
+    	m: 0, 
+    	t: 0
+	};
+}
 
 function setFlagBit(val: 0 | 1, pos: number, reg: Byte): Byte {
     const valStr = val.toString();
@@ -21,38 +25,40 @@ function setFlagBit(val: 0 | 1, pos: number, reg: Byte): Byte {
     return new Byte(Number('0b' + newRegVal));
 }
 
-const _r = {
-    a: new Byte(0),
-    b: new Byte(0),
-    c: new Byte(0),
-    d: new Byte(0),
-    e: new Byte(0),
-    l: new Byte(0),
-    f: new Byte(0),
-    h: new Byte(0),
-    pc: new Address(0),
-    sp: new Address(0),
-    m: 0,
-    t: 0,
-    ime: 0,
-    setZ: (val: 0 | 1): void => { this.f = setFlagBit(val, 0, this.f);  },
-    setN: (val: 0 | 1): void => { this.f = setFlagBit(val, 1, this.f);  },
-    setH: (val: 0 | 1): void => { this.f = setFlagBit(val, 2, this.f);  },
-    setC: (val: 0 | 1): void => { this.f = setFlagBit(val, 3, this.f);  }
-} as Registers;
+function createRegisters(): Registers {
+	return {
+		a: new Byte(0),
+		b: new Byte(0),
+		c: new Byte(0),
+		d: new Byte(0),
+		e: new Byte(0),
+		l: new Byte(0),
+		f: new Byte(0),
+		h: new Byte(0),
+		pc: new Address(0),
+		sp: new Address(0),
+		m: 0,
+		t: 0,
+		ime: 0,
+		setZ: (val: 0 | 1): void => { this.f = setFlagBit(val, 0, this.f);  },
+		setN: (val: 0 | 1): void => { this.f = setFlagBit(val, 1, this.f);  },
+		setH: (val: 0 | 1): void => { this.f = setFlagBit(val, 2, this.f);  },
+		setC: (val: 0 | 1): void => { this.f = setFlagBit(val, 3, this.f);  }
+	} as Registers;
+}
 
 function copy(object: Object) {
     return JSON.parse(JSON.stringify(object));
 }
 
-class Z80 {
+class Z80 extends Logger implements LoggerInterface {
     /*----------------------------*\
     ||    Internal      State     ||
     \*----------------------------*/
 
-    public _clock = copy(_clock);
+    public _clock = createClock();
 
-    public _r: Registers = copy(_r);
+    public _r: Registers = createRegisters();
 
     public _map = {
         0x83: Instructions.ADDr_e,
@@ -138,8 +144,7 @@ class Z80 {
 	
 	// Properties and Functions to Log
 	properties = [
-		'a','b','c','d','e','l','f','h','m','t',
-		'pc', 'sp', 'ime'
+		'_r'
 	];
 	functions = [
 		'_execute16BitInstructions',
@@ -149,6 +154,8 @@ class Z80 {
 	];
 
     constructor() {
+		super();
+		this.setupLogging();
         const ldRbRbMap = Instructions.setLoadRegToRegVal(() => Instructions.LD_RB_RB);
         
         this._map = { ...this._map, ...ldRbRbMap };
@@ -215,8 +222,8 @@ class Z80 {
 	}
     
     public reset(): void {
-        this._clock = copy(_clock);
-        this._r = copy(_r);
+        this._clock = createClock();
+        this._r = createRegisters();
         this._r.pc = new Address(0);
         this._r.sp = new Address(0);
     }

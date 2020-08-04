@@ -52,12 +52,9 @@ class MMU extends Logger implements LoggerInterface {
     _carttype = 0;
 
 	// Properties and Functions to Log
-	properties = ['inbios'];
+	properties = ['_inbios'];
 	functions = [
 		'rb',
-		'wb',
-		'rw',
-		'ww',
 		'load',
 		'reset'
 	];

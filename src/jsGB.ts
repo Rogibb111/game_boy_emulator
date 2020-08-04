@@ -2,7 +2,10 @@ import GPU from './GPU.js';
 import TIMER from './TIMER.js';
 import Z80 from './Z80.js';
 import MMU from './MMU.js';
+import Aggregator from './logging/implementations/Aggregator.js';
+import Console from './logging/displays/Console.js';
 import { RST40 } from './instructions/JumpsAndSubroutines.js';
+
 
 class GameBoy {
 
@@ -10,7 +13,8 @@ class GameBoy {
 
     constructor() {
         this.reset();
-    }
+    	Aggregator.registerDisplay(new Console());
+	}
     reset() {
         GPU.reset();
         MMU.reset();
