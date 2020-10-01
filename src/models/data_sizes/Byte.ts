@@ -36,4 +36,8 @@ export default class Byte {
     OR(val: number): Byte {
         return new Byte(this.val | val);
     }
+
+	COPY(): Byte {
+		return new Byte(this.val);
+	}
 }

@@ -35,11 +35,9 @@ export const LD_RW_NW = {
     t: 12,
     action: function ({ _r , opcode1, operand1, operand2 }): void {
         const [upper, lower] = this.map[opcode1.getVal()];
-        const address: Address = new Address(operand1, operand2);
-        const word: Word = MMU.rw(address);
 
-        _r[lower] = word.getLastByte();
-        _r[upper] = word.getFirstByte();
+        _r[lower] = operand2.COPY();
+        _r[upper] = operand1.COPY();
     },
     map: {
         0x01: ['b', 'c'],
@@ -55,7 +53,7 @@ export const LD_RB_NB = {
     action: function ({ _r, opcode1, operand1 }): void {
         const reg = this.map[opcode1.getVal()];
 
-        _r[reg] = operand1;
+        _r[reg] = operand1.COPY();
     },
     map: {
         0x06: 'b',

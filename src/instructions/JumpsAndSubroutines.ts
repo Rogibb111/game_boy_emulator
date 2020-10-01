@@ -34,7 +34,7 @@ export const JR_cc_e8 = {
     m: 2,
     t: 8,
     action: function ({ opcode1, operand1,  _r }): void {
-        const conditionMet = this.map[opcode1.getVal()](_r.f);
+        const conditionMet = this.map[opcode1.getVal()](_r.f.getVal());
 
         if (conditionMet) {
             _r.pc = _r.pc.ADD(operand1.getVal());
@@ -46,10 +46,10 @@ export const JR_cc_e8 = {
         }
     },
     map: {
-        0x20: (flag: number) => !!(flag & 0x80 ^ 0x80),
-        0x28: (flag: number) => !(flag & 0x80 ^ 0x80),
-        0x30: (flag: number) => !!(flag & 0x10 ^ 0x10),
-        0x38: (flag: number) => !(flag & 0x10 ^ 0x10)
+        0x20: (flag: number) => !!(flag & 0x8 ^ 0x8),
+        0x28: (flag: number) => !(flag & 0x8 ^ 0x8),
+        0x30: (flag: number) => !!(flag & 0x1 ^ 0x1),
+        0x38: (flag: number) => !(flag & 0x1 ^ 0x1)
     },
     bytes: 2
 } as InstructionMetaData;
