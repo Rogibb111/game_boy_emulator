@@ -219,7 +219,9 @@ class MMU extends Logger implements LoggerInterface {
             case 0x8000:
             case 0x9000:
                 GPU._vram.setValue(addr, val);
-                GPU.updateTile(addr, val);
+                if (addrVal < 0x97FF) {
+					GPU.updateTile(addr, val);
+				}
                 break;
             // External RAM
             case 0xA000:
@@ -281,6 +283,7 @@ class MMU extends Logger implements LoggerInterface {
             
             this._rom0 = new MemoryBank(BankTypes.ROM0, new Uint8Array(result.slice(0, 16384)), mbc);
             this._rom1 = new MemoryBank(BankTypes.ROM1, new Uint8Array(result.slice(16385, -1)), mbc);
+			this._zram = new MemoryBank(BankTypes.ZRAM);
 			this._mbc = mbc;
 			if (eramSize) {
 				this._eram = new MemoryBank(BankTypes.ERAM, eramSize, mbc);
