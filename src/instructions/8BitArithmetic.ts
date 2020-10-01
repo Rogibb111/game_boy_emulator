@@ -36,14 +36,6 @@ export function CPr_b(_r: Registers) {
         _r.m = 1; // 1 M-time take
 }
 
-// TODO: This needs to be removed when XOR r8 gets created
-// Bitwise XOR between the value in A and A, which gets stored in A
-export function XORA(_r: Registers) {
-    this._r.a ^= this._r.a;
-    this._r.m = 1;
-    this._r.t = 4;
-}
-
 
 export const INC_RB = {
     m: 1,
@@ -194,3 +186,22 @@ export const ADD_A_HL = {
     },
     bytes: 1
 } as InstructionMetaData;
+
+export const XOR_A_RB = {
+	m: 1,
+	t: 4,
+	action: function({ _r, opcode1 }) {
+        const reg: string = this.map[opcode1.getVal() & 0xF - 8]; //grab the last nibble of the byte and - 8 from it. This is because the map is for values 9-F.
+        const resultVal: number = _r.a.getVal() ^ _r[reg].getVal();
+		const result = new Byte(resultVal); 
+
+        if (!result.AND(255).getVal()) {
+            _r.setZ(1);
+        }
+        _r.setN(0);
+		_r.setH(0)
+		_r.setC(0);
+	},
+	map: ['b', 'c', 'd', 'e', 'h', 'l', null, 'a'],
+	bytes: 1
+};

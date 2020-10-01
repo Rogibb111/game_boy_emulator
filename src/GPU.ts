@@ -88,8 +88,8 @@ class GPU extends Logger implements LoggerInterface {
                 }
             }
 
-        this._vram = null;
-        this._oam = null;
+        this._vram = new MemoryBank(BankTypes.VRAM);
+        this._oam = new MemoryBank(BankTypes.OAM);
         }
 
         //Reset Sprite Memory (OAM)

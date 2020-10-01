@@ -41,7 +41,7 @@ export default class Console implements Display {
 		{
 			classType: 'MMU',
 			logTypes: [
-				LogTypes.properties,
+				LogTypes.functions,
 			]
 		}
 	];	
@@ -60,6 +60,8 @@ export default class Console implements Display {
 			log(className, `InstructionMetaData: ${JSON.stringify(instructionMetaData)}`);
 		} else if (name === 'executeCurrentInstruction') {
 			printRegisters();	
+		} else if (name === 'rb') {
+			log(className, `Byte -> Dec:${ret.val.toString()} Hex:${ret.val.toString(16).toUpperCase()} Bin: ${ret.val.toString(2)}`);
 		}
 	}
 }

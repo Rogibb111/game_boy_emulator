@@ -1,4 +1,4 @@
-import Address from './models/data_types/Address';
+import Address from './models/data_types/Address.js';
 import Z80 from './Z80.js';
 import MMU from './MMU.js';
 

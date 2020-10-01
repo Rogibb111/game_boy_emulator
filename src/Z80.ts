@@ -1,7 +1,7 @@
-import MMU from 'MMU';
-import Address from 'models/data_types/Address';
-import Registers from 'models/Registers';
-import * as Instructions  from 'instructions/index';
+import MMU from './MMU.js';
+import Address from './models/data_types/Address.js';
+import Registers from './models/Registers.js';
+import * as Instructions  from './instructions/index.js';
 import Byte from './models/data_sizes/Byte.js';
 import Opcode from './models/data_types/Opcode.js';
 import { InstructionMetaData } from './instructions/InstructionMetaData.js';
@@ -40,10 +40,10 @@ function createRegisters(): Registers {
 		m: 0,
 		t: 0,
 		ime: 0,
-		setZ: (val: 0 | 1): void => { this.f = setFlagBit(val, 0, this.f);  },
-		setN: (val: 0 | 1): void => { this.f = setFlagBit(val, 1, this.f);  },
-		setH: (val: 0 | 1): void => { this.f = setFlagBit(val, 2, this.f);  },
-		setC: (val: 0 | 1): void => { this.f = setFlagBit(val, 3, this.f);  }
+		setZ: function (val: 0 | 1): void { this.f = setFlagBit(val, 0, this.f);  },
+		setN: function (val: 0 | 1): void { this.f = setFlagBit(val, 1, this.f);  },
+		setH: function (val: 0 | 1): void { this.f = setFlagBit(val, 2, this.f);  },
+		setC: function (val: 0 | 1): void { this.f = setFlagBit(val, 3, this.f);  }
 	} as Registers;
 }
 
@@ -80,7 +80,13 @@ class Z80 extends Logger implements LoggerInterface {
         0xD9: Instructions.RETI,
         0x31: Instructions.LDSPnn,
         0xFA: Instructions.LD_A_NW,
-        0xAF: Instructions.XORA,
+        0xA8: Instructions.XOR_A_RB,
+		0xA9: Instructions.XOR_A_RB,
+		0xAA: Instructions.XOR_A_RB,
+		0xAB: Instructions.XOR_A_RB,
+		0xAC: Instructions.XOR_A_RB,
+		0xAD: Instructions.XOR_A_RB,
+		0xAF: Instructions.XOR_A_RB,
         0x03: Instructions.INC_NW,
         0x13: Instructions.INC_NW,
         0x23: Instructions.INC_NW,
@@ -137,7 +143,7 @@ class Z80 extends Logger implements LoggerInterface {
         0x94: Instructions.SUB_A_RB,
         0x95: Instructions.SUB_A_RB,
         0x97: Instructions.SUB_A_RB,
-        0xCB: this._execute16BitInstruction
+        0xCB: null
     };
 
     private _16BitInstructions = new Array(256);
@@ -166,21 +172,24 @@ class Z80 extends Logger implements LoggerInterface {
         if (Array.isArray(Instructions.RL_r8.map)) {
             Instructions.RL_r8.map.forEach((reg, index) => {
                 if(reg) {
-                    this._16BitInstructions[0x10 + index] = RL_r8;
+                    this._16BitInstructions[0x10 + index] = Instructions.RL_r8;
                 }
             });
         }
     }
 
-    private _execute16BitInstruction(_r, instruction): void {
-        const second_operand = instruction & 0xFF;
-        this. _16BitInstructions[second_operand](_r, instruction);
-    }
-
     public executeCurrentInstruction(): void {
         const opcode: Opcode = MMU.rb(this._r.pc);
-        const metaData: InstructionMetaData = { ...this._map[opcode.getVal()] };
-        
+        let metaData: InstructionMetaData;
+		
+		if (opcode.getVal() === 0xCB) {
+			// TODO: These are representing the 1 m cycle switch to the 16bit instruction map
+			// as well as executing the 16bit instruction. If interrupts can occur between
+			// these two clock cycles, I will have to change this implementaton. 
+			metaData = this._16BitInstructions[MMU.rb(this._r.pc.ADD(1)).getVal()];
+		} else {
+			metaData = { ...this._map[opcode.getVal()] };
+		}
 		this.executeInstructionAction(metaData, opcode);
 
         this._r.pc = this._r.pc.ADD(metaData.bytes).AND(65535);

@@ -2,7 +2,7 @@ import Z80 from './Z80.js';
 import GPU from './GPU.js';
 import KEY from './KEY.js';
 import MemoryBank, { BankTypes } from './models/MemoryBank.js';
-import Address from './models/data_types/Address';
+import Address from './models/data_types/Address.js';
 import MBC from './models/MBC.js';
 import Byte from './models/data_sizes/Byte.js';
 import Word from './models/data_sizes/Word.js';
@@ -11,6 +11,9 @@ import LoggerInterface from './logging/interfaces/Logger.js';
 
 
 const CART_TYPE_ADDR = new Address(0x0147);
+const ERAM_SIZE_ADDR = new Address(0x0149);
+// Size map is based in bytes. This is due to the Memorybank using bytes (not bits) for its bank sizes.
+const ERAM_SIZE_MAP = [null, 2*1024, 8*1024, 32*1024, 128*1024, 64*1024];
 
 class MMU extends Logger implements LoggerInterface {
     // Flag indicating BIOS is mapped in
@@ -79,7 +82,6 @@ class MMU extends Logger implements LoggerInterface {
                     }
                 }
                 return this._rom0.getValue(addr);
-
             // ROM0
             case 0x1000:
             case 0x2000:
@@ -217,7 +219,9 @@ class MMU extends Logger implements LoggerInterface {
             case 0x8000:
             case 0x9000:
                 GPU._vram.setValue(addr, val);
-                GPU.updateTile(addr, val);
+                if (addrVal < 0x97FF) {
+					GPU.updateTile(addr, val);
+				}
                 break;
             // External RAM
             case 0xA000:
@@ -258,10 +262,14 @@ class MMU extends Logger implements LoggerInterface {
     }
     /*
      * Load rom: this pulls in the Rom as an array-buffer from game file. The onload
-     * callback is called when the game as loaded to said array-bugger. Then the rom 
+     * callback is called when the game as loaded to said array-buffer. Then the rom 
      * is split up into two seperate banks, one bank for the first 16k of the rom (
      * the static rom bank) and one bank for the rest of the rom (which is controlled
-     * by the MBC). Then it grabs the cartridge type from the loaded rom.
+     * by the MBC). It grabs the cartridge type from the loaded rom as well as the size 
+	 * of the eRam, and create the Memory Bank Controller using the cartridge type. This
+	 * is then used by the Rom and Ram classes to get info for any operations they might 
+	 * carry out. The eRam is also constructed here with size dictated by the cartridge
+	 * (or not if the cartridge says the size is 0).
      */ 
     load(rom) {
         const reader = new FileReader();
@@ -269,11 +277,17 @@ class MMU extends Logger implements LoggerInterface {
         reader.onload = () => {
             // Read game ROM from file and pull out the cartridge type from buffer for MBC
             const result: ArrayBuffer = <ArrayBuffer>reader.result;
-            const mbc: MBC = new MBC(result[CART_TYPE_ADDR.getVal()]);
+            const header: Uint8Array = new Uint8Array(result.slice(0, 0x014F)); 
+			const mbc: MBC = new MBC(header[CART_TYPE_ADDR.getVal()]);
+			const eramSize = ERAM_SIZE_MAP[header[ERAM_SIZE_ADDR.getVal()]];
             
             this._rom0 = new MemoryBank(BankTypes.ROM0, new Uint8Array(result.slice(0, 16384)), mbc);
             this._rom1 = new MemoryBank(BankTypes.ROM1, new Uint8Array(result.slice(16385, -1)), mbc);
-            this._mbc = mbc;
+			this._zram = new MemoryBank(BankTypes.ZRAM);
+			this._mbc = mbc;
+			if (eramSize) {
+				this._eram = new MemoryBank(BankTypes.ERAM, eramSize, mbc);
+			}
         }
 
         reader.readAsArrayBuffer(rom);

@@ -1,5 +1,5 @@
-import { InstructionMetaData } from "./InstructionMetaData";
-import Address from "../models/data_types/Address";
+import { InstructionMetaData } from "./InstructionMetaData.js";
+import Address from "../models/data_types/Address.js";
 
 export const INC_NW = {
     m: 2,
