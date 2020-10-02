@@ -2,6 +2,10 @@ import Address from '../models/data_types/Address.js';
 import MMU from '../MMU.js';
 import { InstructionMetaData } from './InstructionMetaData.js';
 
+function getSignedVal(val) {
+	return val > 0x7F ? val - 0x100 : val; 
+}
+
 // Return from interrupt (called by handler)
 export const RETI = {
     m: 3,
@@ -35,9 +39,9 @@ export const JR_cc_e8 = {
     t: 8,
     action: function ({ opcode1, operand1,  _r }): void {
         const conditionMet = this.map[opcode1.getVal()](_r.f.getVal());
-
+		const signedVal =  getSignedVal(operand1.getVal());
         if (conditionMet) {
-            _r.pc = _r.pc.ADD(operand1.getVal());
+            _r.pc = _r.pc.ADD(signedVal);
         }
 
         if (conditionMet) {
