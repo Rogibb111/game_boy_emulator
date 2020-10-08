@@ -2,6 +2,10 @@ import Address from '../models/data_types/Address.js';
 import MMU from '../MMU.js';
 import { InstructionMetaData } from './InstructionMetaData.js';
 
+function getSignedVal(val) {
+	return val > 0x7F ? val - 0x100 : val; 
+}
+
 // Return from interrupt (called by handler)
 export const RETI = {
     m: 3,
@@ -35,9 +39,9 @@ export const JR_cc_e8 = {
     t: 8,
     action: function ({ opcode1, operand1,  _r }): void {
         const conditionMet = this.map[opcode1.getVal()](_r.f.getVal());
-
+		const signedVal =  getSignedVal(operand1.getVal());
         if (conditionMet) {
-            _r.pc = _r.pc.ADD(operand1.getVal());
+            _r.pc = _r.pc.ADD(signedVal);
         }
 
         if (conditionMet) {
@@ -57,14 +61,13 @@ export const JR_cc_e8 = {
 export const CALL_NW = {
     m: 6,
     t: 24,
-    action: function ({ _r, operand1, operand2 }): void {
+    action: ({ _r, operand1, operand2 }): void => {
         const address: Address = new Address(operand1, operand2);
         
         _r.sp = _r.sp.ADD(-2);
-        MMU.ww(_r.sp, _r.pc.ADD(this.bytes));
+        MMU.ww(_r.sp, _r.pc.ADD(1));
         
-        this.pc = address;
-        this.bytes = 0;
+        _r.pc = address;
     },
     bytes: 3
 } as InstructionMetaData;
@@ -74,7 +77,6 @@ export const JR_EB = {
     t: 12,
     action: function ({ _r, operand1 }): void {
         _r.pc = _r.pc.ADD(this.bytes).ADD(operand1.getVal());
-        this.bytes = 0;
     },
     bytes: 2
 } as InstructionMetaData;

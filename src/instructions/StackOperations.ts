@@ -16,9 +16,9 @@ export const PUSH_RW = {
         const [upper, lower] = this.map[opcode1.getVal() >> 4];
 
         _r.sp = _r.sp.ADD(-1);             // Drop through the stack
-        MMU.wb(_r.sp, upper);               // Write B
+        MMU.wb(_r.sp, _r[upper]);               // Write B
         _r.sp = _r.sp.ADD(-1);            // Drop through the stack
-        MMU.wb(_r.sp, lower);               // Write C
+        MMU.wb(_r.sp, _r[lower]);               // Write C
     },
     map: POP_PUSH_MAP,
     bytes: 1 
@@ -28,8 +28,8 @@ export const PUSH_RW = {
 export const POP_RW = {
     m: 3,
     t: 12,
-    action: ({ _r, opcode1 }) => {
-        const [upper, lower] = this.map[opcode1.getVal()];
+    action: function ({ _r, opcode1 }) {
+        const [upper, lower] = this.map[opcode1.getVal() >> 4];
         _r[lower] = MMU.rb(_r.sp);         // Read L
         _r.sp = _r.sp.ADD(1);              // Move back up the stack
         _r[upper] = MMU.rb(_r.sp);         // Read H
