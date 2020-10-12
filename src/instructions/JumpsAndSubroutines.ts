@@ -61,13 +61,14 @@ export const JR_cc_e8 = {
 export const CALL_NW = {
     m: 6,
     t: 24,
-    action: ({ _r, operand1, operand2 }): void => {
+    action: function({ _r, operand1, operand2 }): void {
         const address: Address = new Address(operand1, operand2);
         
         _r.sp = _r.sp.ADD(-2);
-        MMU.ww(_r.sp, _r.pc.ADD(1));
+        MMU.ww(_r.sp, _r.pc.ADD(this.bytes));
         
         _r.pc = address;
+		this.bytes = 0;
     },
     bytes: 3
 } as InstructionMetaData;
