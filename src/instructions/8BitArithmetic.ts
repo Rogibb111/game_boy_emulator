@@ -96,6 +96,7 @@ export const DEC_RB = {
         const result = _r[reg].ADD(-1);
 
         _r.setN(1);
+		_r[reg] = result;
 
         if (!result.AND(255).getVal()) {
             _r.setZ(1);

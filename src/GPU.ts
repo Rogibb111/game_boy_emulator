@@ -123,8 +123,8 @@ class GPU extends Logger implements LoggerInterface {
 
             // Update tile set
             this._tileset[tile][y][x] = 
-                ((this._vram.getValue(baseAddr).AND(sx)) ? 1 : 0) +
-                ((this._vram.getValue(baseAddr.ADD(1)).AND(sx)) ? 2 : 0);
+                ((this._vram.getValue(addr).AND(sx)) ? 1 : 0) +
+                ((this._vram.getValue(addr.ADD(1)).AND(sx)) ? 2 : 0);
         }
     }
 

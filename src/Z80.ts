@@ -19,7 +19,8 @@ function createClock(): { m: number, t: number }  {
 
 function setFlagBit(val: 0 | 1, pos: number, reg: Byte): Byte {
     const valStr = val.toString();
-    const regStr = reg.getVal().toString(2);
+    let regStr = reg.getVal().toString(2);
+	regStr = Array(5 - regStr.length).join("0") + regStr;
     const newRegVal = regStr.substring(0,pos) + valStr + regStr.substring(pos+1);
     
     return new Byte(Number('0b' + newRegVal));
@@ -106,9 +107,9 @@ class Z80 extends Logger implements LoggerInterface {
         0x06: Instructions.LD_RB_NB,
         0x0E: Instructions.LD_RB_NB,
         0x16: Instructions.LD_RB_NB,
+        0x1E: Instructions.LD_RB_NB,
         0x26: Instructions.LD_RB_NB,
         0x2E: Instructions.LD_RB_NB,
-        0x36: Instructions.LD_RB_NB,
         0x3E: Instructions.LD_RB_NB,
         0x70: Instructions.LD_HL_RB,
         0x71: Instructions.LD_HL_RB,

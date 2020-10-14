@@ -59,9 +59,9 @@ export const LD_RB_NB = {
         0x06: 'b',
         0x0E: 'd',
         0x16: 'h',
+        0x1E: 'l',
         0x26: 'c',
         0x2E: 'e',
-        0x36: 'l',
         0x3E: 'a'
     },
     bytes: 2
@@ -125,7 +125,7 @@ export function setLoadRegToRegVal(setFunc): Object {
                 lower.forEach((lowerVal, lowerIndex) => {
                     if(lowerVal) {
                         const lowerHalf = upperIndex ? lowerIndex + 8 : lowerIndex;
-                        map[Number(upperStr) << 4 + lowerHalf] = setFunc(upperVal, lowerVal); 
+                        map[(Number(upperStr) << 4) + lowerHalf] = setFunc(upperVal, lowerVal); 
                     }
                 });
             }

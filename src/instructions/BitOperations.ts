@@ -55,7 +55,7 @@ export const RL_r8 = {
         const newCarry: string = byte.shift();
         
         byte.push(carry);
-        const result = new Byte(Number(byte.join('')));
+        const result = new Byte(parseInt(byte.join(''), 2));
 
 		_r.setH(0);
 		_r.setN(0);
@@ -80,7 +80,7 @@ export const RLA = {
 		const newCarry: string = byte.shift();
 		
 		byte.push(carry);
-		const result = new Byte(Number(byte.join('')));
+		const result = new Byte(parseInt(byte.join(''), 2));
 		
 		_r.setH(0);
 		_r.setN(0);

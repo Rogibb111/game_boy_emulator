@@ -239,7 +239,7 @@ class MMU extends Logger implements LoggerInterface {
                         // Zero-page
                     case 0xF00:
                         if (addrVal >= 0xFF80) {
-                            this._zram.setValue(addr.AND(0x75), val);
+                            this._zram.setValue(addr, val);
                         } else {
                             // I/O 
                             switch(addrVal & 0x00F0) {

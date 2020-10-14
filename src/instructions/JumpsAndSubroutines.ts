@@ -61,13 +61,14 @@ export const JR_cc_e8 = {
 export const CALL_NW = {
     m: 6,
     t: 24,
-    action: ({ _r, operand1, operand2 }): void => {
+    action: function({ _r, operand1, operand2 }): void {
         const address: Address = new Address(operand1, operand2);
         
         _r.sp = _r.sp.ADD(-2);
-        MMU.ww(_r.sp, _r.pc.ADD(1));
+        MMU.ww(_r.sp, _r.pc.ADD(this.bytes));
         
         _r.pc = address;
+		this.bytes = 0;
     },
     bytes: 3
 } as InstructionMetaData;
@@ -75,7 +76,7 @@ export const CALL_NW = {
 export const JR_EB = {
     m:3,
     t: 12,
-    action: function ({ _r, operand1 }): void {
+    action: function({ _r, operand1 }): void {
         _r.pc = _r.pc.ADD(this.bytes).ADD(operand1.getVal());
     },
     bytes: 2
@@ -84,9 +85,10 @@ export const JR_EB = {
 export const RET = {
     m: 4,
     t: 16,
-    action: ({ _r }): void => {
+    action: function({ _r }): void {
         _r.pc = new Address(MMU.rw(_r.sp));
         _r.sp = _r.sp.ADD(2);
+		this.bytes = 0;
     },
     bytes: 1
 } as InstructionMetaData;
