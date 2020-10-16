@@ -76,6 +76,15 @@ export const LDH_C_A = {
     bytes: 1
 } as InstructionMetaData;
 
+export const LDH_A_C = {
+	m: 2,
+	t: 8,
+	action: ({ _r }) => {
+		_r.a = MMU.rb(new Address(0xFF00).ADD(_r.c.getVal()));
+	},
+	bytes: 1
+} as InstructionMetaData;
+
 export const LD_HL_RB = {
     m: 2,
     t: 8,
