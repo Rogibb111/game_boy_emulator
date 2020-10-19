@@ -57,11 +57,11 @@ export const LD_RB_NB = {
     },
     map: {
         0x06: 'b',
-        0x0E: 'd',
-        0x16: 'h',
-        0x1E: 'l',
-        0x26: 'c',
-        0x2E: 'e',
+        0x0E: 'c',
+        0x16: 'd',
+        0x1E: 'e',
+        0x26: 'h',
+        0x2E: 'l',
         0x3E: 'a'
     },
     bytes: 2
