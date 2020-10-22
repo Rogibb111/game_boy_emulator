@@ -57,11 +57,11 @@ export const LD_RB_NB = {
     },
     map: {
         0x06: 'b',
-        0x0E: 'd',
-        0x16: 'h',
-        0x1E: 'l',
-        0x26: 'c',
-        0x2E: 'e',
+        0x0E: 'c',
+        0x16: 'd',
+        0x1E: 'e',
+        0x26: 'h',
+        0x2E: 'l',
         0x3E: 'a'
     },
     bytes: 2
@@ -74,6 +74,15 @@ export const LDH_C_A = {
         MMU.wb(new Address(0xFF00).ADD(_r.c.getVal()), _r.a);
     },
     bytes: 1
+} as InstructionMetaData;
+
+export const LDH_A_C = {
+	m: 2,
+	t: 8,
+	action: ({ _r }) => {
+		_r.a = MMU.rb(new Address(0xFF00).ADD(_r.c.getVal()));
+	},
+	bytes: 1
 } as InstructionMetaData;
 
 export const LD_HL_RB = {
@@ -95,6 +104,15 @@ export const LD_HL_RB = {
         0x77: 'a'
     },
     bytes: 1
+} as InstructionMetaData;
+
+export const LDH_A_NW = {
+	m: 3,
+	t: 12,
+	action: ({ _r, operand1 }): void => {
+		_r.a = MMU.rb(new Address(0xFF00).ADD(operand1.getVal())); 
+	},
+	bytes: 2
 } as InstructionMetaData;
 
 export const LDH_NW_A = {
