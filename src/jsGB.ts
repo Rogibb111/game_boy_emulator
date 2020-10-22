@@ -9,7 +9,7 @@ import { RST40 } from './instructions/JumpsAndSubroutines.js';
 
 class GameBoy {
 
-    _interval: number = null;
+    _interval = null;
 
     constructor() {
         this.reset();
@@ -76,7 +76,7 @@ window.onload = function() {
     instance.reset();
 }
 
-function handleRomSelect({ target }){
+export function handleRomSelect({ target }){
     const { files } = target;
     const rom = files[0];
 
