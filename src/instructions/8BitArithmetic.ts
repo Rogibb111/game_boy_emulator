@@ -95,8 +95,8 @@ export const DEC_RB = {
         const reg = this.map[opcode1.getVal()];
         const result = _r[reg].ADD(-1);
 
-        _r.setN(1);
 		_r[reg] = result;
+        _r.setN(1);
 
         if (!result.AND(255).getVal()) {
             _r.setZ(1);
@@ -124,6 +124,7 @@ export const SUB_A_RB = {
         const reg: string = this.map[opcode1.getVal() & 0xF];
         const result = _r.a.ADD(-_r[reg].getVal());
 
+		_r.a = result;
         _r.setN(1);
 
         if (!result.AND(255).getVal()) {

@@ -4,7 +4,7 @@
   "description": "GameBoy emulator written in JavaScript for the browser",
   "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "lint": "eslint .",
     "compile": "tsc -w",
     "run": "node server.js"
@@ -25,8 +25,14 @@
   },
   "homepage": "https://github.com/Rogibb111/GameBoy-Emulator-Browser#readme",
   "devDependencies": {
+    "@types/jest": "^26.0.15",
+    "canvas": "^2.6.1",
     "eslint": "^5.14.1",
-    "typescript": "^3.4.5"
+    "jest": "^26.6.0",
+    "jest-esm-transformer": "^1.0.0",
+    "ts-jest": "^26.4.1",
+    "ts-node": "^9.0.0",
+    "typescript": "^3.8.0"
   },
   "dependencies": {
     "express": "^4.16.4"

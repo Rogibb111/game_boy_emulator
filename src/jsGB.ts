@@ -9,7 +9,7 @@ import { RST40 } from './instructions/JumpsAndSubroutines.js';
 
 class GameBoy {
 
-    _interval: number = null;
+    _interval = null;
 
     constructor() {
         this.reset();
@@ -25,7 +25,7 @@ class GameBoy {
     }
 
     frame() {
-        const fclk = Z80._clock.t + 70224;
+		const fclk = Z80._clock.t + 70224;
         do {
             Z80.executeCurrentInstruction(); 
             // Update the Timer
@@ -73,10 +73,9 @@ const instance: GameBoy = new GameBoy();
 window.onload = function() {
     document.getElementById('reset').onclick = instance.reset;
     document.getElementById('run').onclick = instance.run;
-    instance.reset();
 }
 
-function handleRomSelect({ target }){
+export function handleRomSelect({ target }){
     const { files } = target;
     const rom = files[0];
 
