@@ -26,6 +26,7 @@
   "homepage": "https://github.com/Rogibb111/GameBoy-Emulator-Browser#readme",
   "devDependencies": {
     "@types/jest": "^26.0.15",
+    "canvas": "^2.6.1",
     "eslint": "^5.14.1",
     "jest": "^26.6.0",
     "jest-esm-transformer": "^1.0.0",
