@@ -28,5 +28,7 @@ jobs:
         node-version: '10.x' 
     - name: yarn install
       run: yarn install
-    - name: tsc
+    - name: Run Build
       uses: icrawl/action-tsc@v1
+    - name: Run Tests
+      run: yarn test
