@@ -25,7 +25,7 @@ class GameBoy {
     }
 
     frame() {
-        const fclk = Z80._clock.t + 70224;
+		const fclk = Z80._clock.t + 70224;
         do {
             Z80.executeCurrentInstruction(); 
             // Update the Timer
@@ -73,7 +73,6 @@ const instance: GameBoy = new GameBoy();
 window.onload = function() {
     document.getElementById('reset').onclick = instance.reset;
     document.getElementById('run').onclick = instance.run;
-    instance.reset();
 }
 
 export function handleRomSelect({ target }){
