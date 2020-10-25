@@ -25,8 +25,12 @@ jobs:
     # Installs node in the environment
     - uses: actions/setup-node@v1
       with: 
-        node-version: '10.x' 
-    - name: yarn install
-      run: yarn install
-    - name: tsc
+        node-version: '12.18.2' 
+    - name: npm install
+      run: npm install
+    - name: Run Build
       uses: icrawl/action-tsc@v1
+      with: 
+        build: ./
+    - name: Run Tests
+      run: npm test
