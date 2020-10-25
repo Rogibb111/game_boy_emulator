@@ -4,7 +4,7 @@
   "description": "GameBoy emulator written in JavaScript for the browser",
   "main": "index.html",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test": "ls -al && node --experimental-vm-modules node_modules/.bin/jest",
     "lint": "eslint .",
     "compile": "tsc -w",
     "run": "node server.js"
