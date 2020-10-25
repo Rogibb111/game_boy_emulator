@@ -30,5 +30,7 @@ jobs:
       run: npm install
     - name: Run Build
       uses: icrawl/action-tsc@v1
+      with: 
+        build: true
     - name: Run Tests
       run: npm test
