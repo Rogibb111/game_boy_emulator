@@ -64,6 +64,9 @@ export const INC_RB = {
         0x2C: 'l',
         0x3C: 'a',
     },
+	z: "?",
+	n: 0,
+	h: "?",
     bytes: 1
 } as InstructionMetaData;
 
