@@ -10,6 +10,8 @@ import { RL_r8 } from './instructions/index.js';
 import Logger from './logging/implementations/Logger.js';
 import LoggerInterface from './logging/interfaces/Logger.js';
 
+const flags = ['h', 'z', 'n', 'c'];
+
 function createClock(): { m: number, t: number }  {
 	return {
     	m: 0, 
@@ -193,6 +195,19 @@ class Z80 extends Logger implements LoggerInterface {
 		} else {
 			metaData = { ...this._map[opcode.getVal()] };
 		}
+
+		flags.forEach((flag: string) => {
+			const flagVal = metaData[flag];
+			if (flagVal) {
+				const flagFunc = this._r['set' + flag.toUpperCase()];
+				if (flagVal === '?') {
+					flagFunc(0);	
+				} else {
+					flagFunc(flagVal);
+				}
+			}
+		});
+
 		this.executeInstructionAction(metaData, opcode);
 
         this._r.pc = this._r.pc.ADD(metaData.bytes).AND(65535);
