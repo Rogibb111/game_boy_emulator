@@ -199,11 +199,10 @@ class Z80 extends Logger implements LoggerInterface {
 		flags.forEach((flag: string) => {
 			const flagVal = metaData[flag];
 			if (flagVal) {
-				const flagFunc = this._r['set' + flag.toUpperCase()];
 				if (flagVal === '?') {
-					flagFunc(0);	
+					this._r['set' + flag.toUpperCase()](0);	
 				} else {
-					flagFunc(flagVal);
+					this._r['set' + flag.toUpperCase()](flagVal);
 				}
 			}
 		});
