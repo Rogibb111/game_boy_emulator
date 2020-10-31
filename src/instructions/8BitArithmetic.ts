@@ -76,8 +76,6 @@ export const CP_A_NB = {
     action: ({ _r, operand1 }) => {
         const result: Byte = _r.a.ADD(-operand1.getVal());
         
-        _r.setN(1);
-
         if (!result.AND(255).getVal()) {
             _r.setZ(1);
         }
@@ -88,6 +86,10 @@ export const CP_A_NB = {
             _r.setC(1);
         }
     },
+	z: '?',
+	n: 1,
+	h: '?',
+	c: '?',
     bytes: 2
 } as InstructionMetaData;
 
@@ -99,7 +101,6 @@ export const DEC_RB = {
         const result = _r[reg].ADD(-1);
 
 		_r[reg] = result;
-        _r.setN(1);
 
         if (!result.AND(255).getVal()) {
             _r.setZ(1);
@@ -117,6 +118,9 @@ export const DEC_RB = {
         0x2D: 'l',
         0x3D: 'a'
     },
+	z: '?',
+	n: 1,
+	h: '?',
     bytes: 1
 } as InstructionMetaData;
 
@@ -128,7 +132,6 @@ export const SUB_A_RB = {
         const result = _r.a.ADD(-_r[reg].getVal());
 
 		_r.a = result;
-        _r.setN(1);
 
         if (!result.AND(255).getVal()) {
             _r.setZ(1);
@@ -141,7 +144,11 @@ export const SUB_A_RB = {
         }
     },
     map: ['b', 'c', 'd', 'e', 'h', 'l', null, 'a'],
-    bytes: 1
+	z: '?',
+	n: 1,
+	h: '?',
+	c: '?',
+	bytes: 1
 } as InstructionMetaData;
 
 export const CP_A_HL = {
@@ -152,8 +159,6 @@ export const CP_A_HL = {
         const cmprVal: number = MMU.rb(addr).getVal();
         const result: Byte = _r.a.ADD(-cmprVal);
         
-        _r.setN(1);
-
         if (!result.AND(255).getVal()) {
             _r.setZ(1);
         }
@@ -164,6 +169,10 @@ export const CP_A_HL = {
             _r.setC(1);
         }
     },
+	z: '?',
+	n: 1,
+	h: '?',
+	c: '?',
     bytes: 1
 } as InstructionMetaData;
 
@@ -174,8 +183,6 @@ export const ADD_A_HL = {
         const addr: Address = new Address(_r.h, _r.l);
         const addend: number = MMU.rb(addr).getVal();
         const result: Byte = _r.a.ADD(addend);
-
-        _r.setN(0);
 
         if (!result.AND(255).getVal()) {
             _r.setZ(1);
@@ -189,6 +196,10 @@ export const ADD_A_HL = {
 
         _r.a = result.AND(0x255);
     },
+	z: '?',
+	n: 0,
+	h: '?',
+	c: '?',
     bytes: 1
 } as InstructionMetaData;
 
@@ -203,10 +214,11 @@ export const XOR_A_RB = {
         if (!result.AND(255).getVal()) {
             _r.setZ(1);
         }
-        _r.setN(0);
-		_r.setH(0)
-		_r.setC(0);
 	},
 	map: ['b', 'c', 'd', 'e', 'h', 'l', null, 'a'],
+	z: '?',
+	n: 0,
+	h: 0,
+	c: 0,
 	bytes: 1
 };
