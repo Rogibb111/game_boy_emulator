@@ -57,9 +57,6 @@ export const RL_r8 = {
         byte.push(carry);
         const result = new Byte(parseInt(byte.join(''), 2));
 
-		_r.setH(0);
-		_r.setN(0);
-
         if (!result.AND(255).getVal()) {
         	_r.setZ(1);
 		}
@@ -68,7 +65,11 @@ export const RL_r8 = {
 		_r[reg] = result;
     },
     map: ['b', 'c', 'd', 'e', 'h', 'l', null, 'a'],
-    bytes: 2
+    z: '?',
+	n: 0,
+	h: 0,
+	c: '?',
+	bytes: 2
 } as InstructionMetaData;
 
 export const RLA = {
@@ -82,13 +83,14 @@ export const RLA = {
 		byte.push(carry);
 		const result = new Byte(parseInt(byte.join(''), 2));
 		
-		_r.setH(0);
-		_r.setN(0);
-		_r.setZ(0);
 		_r.setC(newCarry === '0' ? 0 : 1);
 
 		_r.a = result;
 	},
+	z: 0,
+	n: 0,
+	h: 0,
+	c: '?',
 	bytes: 1
 };
 
