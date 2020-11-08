@@ -44,12 +44,21 @@ export default class Console implements Display {
 			logTypes: [
 				LogTypes.functions,
 			]
+		},
+		{
+			classType: 'GPU',
+			logTypes: [
+				LogTypes.functions,
+				LogTypes.properties
+			]
 		}
 	];	
 
 	logProperties(classId: number, className: string, name: string, value: any) {
 		if (className === 'Z80' && name === '_r') {
 			registers = value;
+		} else {
+			log(className, `Prop: ${name}: ${value}`);
 		}
 	}
 
