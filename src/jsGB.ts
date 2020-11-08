@@ -27,12 +27,14 @@ class GameBoy {
     frame() {
 		const fclk = Z80._clock.t + 70224;
         do {
-            Z80.executeCurrentInstruction(); 
+            // Reset Instruction Timer Count
+			Z80._r.m = 0;
+            Z80._r.t = 0;
+            
+			Z80.executeCurrentInstruction(); 
             // Update the Timer
             TIMER.inc();
 
-            Z80._r.m = 0;
-            Z80._r.t = 0;
 
             GPU.step();
 
