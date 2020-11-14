@@ -177,17 +177,17 @@ class GPU extends Logger implements LoggerInterface {
             // Background palette
             case 0xFF47:
                 for(var i = 0; i < 4; i++) {
-                    switch((val.getVal() >> (i * 2)) * 3) {
+                    switch((val.getVal() >> (i * 2)) & 3) {
                         case 0:
                             this._pal.bg[i] = [255,255,255,255];
                             break;
                         case 1: 
                             this._pal.bg[i] = [192,192,192,255];
                             break;
-                        case 3:
+                        case 2:
                             this._pal.bg[i] = [ 96, 96, 96,255];
                             break;
-                        case 4:
+                        case 3:
                             this._pal.bg[i] = [  0,  0,  0,255];
                             break;
                     }
@@ -306,8 +306,7 @@ class GPU extends Logger implements LoggerInterface {
 
         if (this._switchbg) {
             // VRAM offset for the tile map
-            let mapoffs = this._bgmap ? 0x1C00 : 0x1800;
-
+            let mapoffs = (this._bgmap ? 0x1C00 : 0x1800) + 0x8000; 
             // Which line of tiles to use in the map
             mapoffs += ((rawLine + rawScy) & 255) >> 3;
 
@@ -325,17 +324,17 @@ class GPU extends Logger implements LoggerInterface {
 
             // Read tile index from the background map
             let color: number;
-            var tile = this._vram[mapoffs + lineoffs];
+			let	tile: Byte  = this._vram.getValue(new Address(mapoffs + lineoffs));
 
             // If the tile data set in use is #1, the indices are
             // signed; calculate a real tile offeset
-            if (this._bgtile === 1 && tile < 128) {
-                tile += 256;
+            if (this._bgtile === 1 && tile.getVal() < 128) {
+                tile = tile.ADD(256);
             }
 
             for (var i = 0; i < 160; i+=1) {
                 // Re-map the tile pixel through the palette
-                color = this._pal[this._tileset[tile][y][x]];
+                color = this._pal.bg[this._tileset[tile.getVal()][y][x]];
 
                 // Plot the pixel to the canvas
                 this._scrn.data[canvasoffs + 0] = color[0];
@@ -349,9 +348,9 @@ class GPU extends Logger implements LoggerInterface {
                 if (x == 8) {
                     x = 0;
                     lineoffs = (lineoffs + 1) & 31;
-                    tile = this._vram[mapoffs + lineoffs];
-                    if (this._bgtile === 1 && tile < 128) {
-                        tile += 256;
+                    tile = this._vram.getValue(new Address(mapoffs + lineoffs));
+                    if (this._bgtile === 1 && tile.getVal() < 128) {
+                        tile = tile.ADD(256);
                     }
                 }
             }
