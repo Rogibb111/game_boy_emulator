@@ -30,21 +30,21 @@ class GPU extends Logger implements LoggerInterface {
 
 	properties = [
 		'_mode',
-//		'_bgmap',
-//		'_bgtile',
-//		'_switchbg',
-//		'_switchobj',
-//		'_switchlcd',
+		'_bgmap',
+		'_bgtile',
+		'_switchbg',
+		'_switchobj',
+		'_switchlcd',
 	    '_line'
 	];
 
 	functions = [
-	//	'reset',
-	//	'updateTile',
+		'reset',
+		'updateTile',
 		'rb',
 		'wb',
-	//	'step',
-	//	'renderScan'
+		'step',
+		'renderScan'
 	];
 
 

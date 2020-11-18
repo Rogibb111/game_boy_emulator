@@ -35,14 +35,14 @@ export default class Console implements Display {
 		{
 			classType: 'Z80',
 			logTypes: [
-				LogTypes.properties,
-				LogTypes.functions
+//				LogTypes.properties,
+//				LogTypes.functions
 			]
 		},
 		{
 			classType: 'MMU',
 			logTypes: [
-				LogTypes.functions,
+//				LogTypes.functions,
 			]
 		},
 		{
