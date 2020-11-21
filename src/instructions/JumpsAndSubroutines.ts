@@ -78,7 +78,7 @@ export const JR_EB = {
     t: 12,
     action: function({ _r, operand1 }): void {
 		const signedVal = getSignedVal(operand1.getVal());
-        _r.pc = _r.pc.ADD(this.bytes).ADD(signedVal);
+        _r.pc = _r.pc.ADD(signedVal);
     },
     bytes: 2
 } as InstructionMetaData;

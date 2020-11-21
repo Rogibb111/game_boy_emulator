@@ -8,6 +8,7 @@ let registers = {
 	'e': 0,
 	'f': 0,
 	'h': 0,
+	'l': 0,
 	'pc': 0,
 	'sp': 0,
 	'm': 0,
@@ -43,12 +44,21 @@ export default class Console implements Display {
 			logTypes: [
 				LogTypes.functions,
 			]
+		},
+		{
+			classType: 'GPU',
+			logTypes: [
+				LogTypes.functions,
+				LogTypes.properties
+			]
 		}
 	];	
 
 	logProperties(classId: number, className: string, name: string, value: any) {
 		if (className === 'Z80' && name === '_r') {
 			registers = value;
+		} else {
+			log(className, `Prop: ${name}: ${value}`);
 		}
 	}
 

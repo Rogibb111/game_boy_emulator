@@ -210,8 +210,8 @@ class Z80 extends Logger implements LoggerInterface {
 		this.executeInstructionAction(metaData, opcode);
 
         this._r.pc = this._r.pc.ADD(metaData.bytes).AND(65535);
-        this._clock.m += metaData.m;
-        this._clock.t += metaData.t;
+        this._r.m += metaData.m;
+        this._r.t += metaData.t;
     }
 
 	private executeInstructionAction(metaData: InstructionMetaData, opcode: Opcode): void {
