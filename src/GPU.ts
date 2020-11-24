@@ -159,7 +159,7 @@ class GPU extends Logger implements LoggerInterface {
                 const rawVal = val.getVal();
                 this._switchbg   = (rawVal & 0x01) ? 1 : 0;
                 this._switchobj  = (rawVal & 0x02) ? 1 : 0;
-                this._bgmap      = (rawVal & 0x05) ? 1 : 0;
+                this._bgmap      = (rawVal & 0x08) ? 1 : 0;
                 this._bgtile     = (rawVal & 0x10) ? 1 : 0;
                 this._switchlcd  = (rawVal & 0x80) ? 1 : 0;
                 break;
