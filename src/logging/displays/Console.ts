@@ -48,8 +48,8 @@ export default class Console implements Display {
 		{
 			classType: 'GPU',
 			logTypes: [
-				LogTypes.functions,
-				LogTypes.properties
+//				LogTypes.functions,
+//				LogTypes.properties
 			]
 		}
 	];	
