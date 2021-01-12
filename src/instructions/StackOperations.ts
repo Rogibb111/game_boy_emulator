@@ -40,8 +40,8 @@ export const POP_RW = {
 } as InstructionMetaData;
 
 export const LDSPnn = {
-    m: 4,
-    t: 16,
+    m: 3,
+    t: 12,
     action: ({ _r, operand1, operand2 }) => {
         _r.sp = new Address(operand1, operand2);       // Load up next word in memory after opcode and store in stack pointer     
     },
