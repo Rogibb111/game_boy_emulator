@@ -1,8 +1,16 @@
 ![Build](https://github.com/Rogibb111/GameBoy-Emulator-Browser/workflows/Build/badge.svg)
 # Gameboy Emulator 
-## A browser based GB emulator for the modern world
 
+## Useful Links
+- [Gameboy Opcode Matrix](https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html)
+- [Gameboy Opcode Descriptions](https://rgbds.gbdev.io/docs/v0.4.2/gbz80.7)
+- [Gameboy Emulator Tutorial](http://imrannazar.com/GameBoy-Emulation-in-JavaScript:-The-CPU)
+- [Gameboy Reference Emulator](https://wasmboy.app/)
+- [Gameboy Bootsram Rom Deconstructed](https://gbdev.gg8.se/wiki/articles/Gameboy_Bootstrap_ROM)
+
+## A browser based GB emulator for the modern world
 A small project that I have been working on to familarize myself with TypeScript and my next step in writing emulators. This Readme will currently serve as a place for me to track my progress. Fascination reading material.
+* 1/9/20 - Turns out the renderScan function wasn't really busted. Still glad I did the exercise because I understand the GameBoy's render algorithm better. It also made me realize nothing was rendering because the bootstrap rom does not rendering anything for a bunch of frames. As I was figuring this all out, I realized that my number of clock cycles being executed in a frame were off. I also found out how to debug the bootstrap rom in WasmBoy. At that point I dropped the project due frustration and just life in general. I picked it back up a couple of days ago though when I started using WasmBoy to run through the bootstrap rom. I was able to compare the cpu registers instruction by instruction with my own and was able to pin point where I had made some mistakes. As of writing this, I am still running through the bootstrap with both and comparing the results. Also, really need to make the logger a little more robust. So far it hasn't been super helpful. Would really like to be able to read the registers after each instruction.
 * 11/21/20 - So the renderScan function in the GPU was pretty busted. Imran's code is definetly not complete and a little tough to follow even with all of the comments in his code block. In order to really understand what was going on, I took Dave's advice and just figured out how the Gameboy physically renders to the screen. So I sat down with 2 peices of paper and a pencil and worked out how the algorithm would work. Below is the results. Now I have to code the damn thing.
 ![image1](https://lh3.googleusercontent.com/pq38w48nPp8JicXK9bLDHgtELvmHcw9EFpTF3lzfs0vH83q40S4EDNS_PcqtMqK5cOV5lYdA9rpZlvFr9OkZ7-9ct20Cn9OjNvUawGByHCpLBWx8FptGLMQXYPvGrDKBPjCBNBmprXU-OIIhrJYry9Vr-5NbJOHI2_CGrXWCV660GtkcbLHPlAyGECyPN_jdYbCitqksxVdDW_DP6A91gw3eonj_I8BIf-AsNIhVbLiIMGUiB1wD2dbYrGfarSw4OWGWMIYAeYyc-qfhKfoet4JeYhZx14WgIE-HghFvKZ6IgyQewUlMhjtmC4sCY2l9N2hUl3EqmnC51Rh-YsvuRrO61m8Kfhl4k0y2y9rHSDNtJqU754DcEvYNRx0P0v5zPIzlWI5LcMZp_sySGRGA6-_P_oyS05l8lC_oh2rD4ISDFj38P_5gw20l6PL1C7AdsOs4iYE2_eckwevjme1meLGeq3N-F70IWfBh8zsa5TdYjfOesf4F0eV7yEKmXmTvUrbiq5qqpYJua0kC1HSRc7XvIjJxChDoyC5NAtkWmwJ0y8yFjYuDKxO23a13c5HvaZoirzNMx03-pkOSTvhWu1K_hc0g5ggY6ieS8f3fVaBI9tle-Rs8UUpeQHNkchyosjMm0bC7E5CFss3Dsg0JRRTEQmTski04XXyD7uUf2V88J61yQpHboUQBdn_vGA=w2554-h1858-no?authuser=0)
 ![image2](https://lh3.googleusercontent.com/pw/ACtC-3dKf2lGx968rjrxHA9ljQNmJ9tMVi3yuWMi-IIm4eZDbVoBN0nxPagEFBG6kXPRYs7lE84j6Wk_LIxg9tyGgznOTsEjsmfMeP88V5CxJbRY9Ms4VQkfaz6GghS4RBwuXKX9mp9s6R2HltnDZbCSU0TSwg=w2554-h1858-no?authuser=0)
