@@ -35,7 +35,7 @@ export default class Console implements Display {
 		{
 			classType: 'Z80',
 			logTypes: [
-//				LogTypes.properties,
+				LogTypes.properties,
 //				LogTypes.functions
 			]
 		},
