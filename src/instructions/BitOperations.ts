@@ -5,7 +5,10 @@ import { InstructionMetaData } from './InstructionMetaData.js';
 import Byte from '../models/data_sizes/Byte.js';
 
 let registerMap = ['b', 'c', 'd', 'e', 'h', 'l', 'hl', 'a'];
-registerMap = registerMap.concat(registerMap);
+// Double the register map array because the 16bit instruction matrix uses
+// the entire upper half of the opcode (0x0 - 0xF) to detirmine which register
+// the instructions are going to affect, repeating when it gets to 0x8
+registerMap = registerMap.concat(registerMap); 
 
 export const BITu3r8 = {
     m: 2,
@@ -14,7 +17,7 @@ export const BITu3r8 = {
         const bitNum = this.map(opcode2);
         const reg = registerMap[opcode2.getVal() & 0xF];
 
-        if ((_r[reg] & bitNum) === 0) {
+        if ((_r[reg].getVal() & bitNum) === 0) {
             _r.setZ(1);
         }
     },
@@ -33,14 +36,15 @@ export const BITu3r8 = {
             return 0x10;
         } else if (opVal >= 0x68 && opVal <= 0x6f) {
             return 0x20;
-        } else if (opVal >= 0x40 && opVal <= 0x47) {
+        } else if (opVal >= 0x70 && opVal <= 0x77) {
             return 0x40;
-        } else if (opVal >= 0x40 && opVal <= 0x47) {
+        } else if (opVal >= 0x78 && opVal <= 0x7f) {
             return 0x80;
         }
     },
     n: 0,
     h: 1,
+	z: '?',
     bytes: 2
 } as InstructionMetaData;
 

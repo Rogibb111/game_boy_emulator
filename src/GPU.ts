@@ -8,7 +8,7 @@ import LoggerInterface from './logging/interfaces/Logger.js';
 class GPU extends Logger implements LoggerInterface {
     _canvas: CanvasRenderingContext2D = null;
     _scrn: ImageData = null;
-    _mode = 0;
+    _mode = 2;
     _modeClock = 0;
     _line: Byte = new Byte(0);
     _tileset = [];
@@ -237,13 +237,13 @@ class GPU extends Logger implements LoggerInterface {
     
     step(): void {
         this._modeClock += Z80._r.t;
-
+	
         switch(this._mode) {
             // OAM read mode, scanline active
             case 2: {
                 if (this._modeClock >= 80) {
                     // Set Next step to VRAM read mode
-                    this._modeClock = 0;
+                    this._modeClock = this._modeClock % 80;
                     this._mode = 3;
                 }
                 break;
@@ -254,7 +254,7 @@ class GPU extends Logger implements LoggerInterface {
             case 3: {
                 if(this._modeClock >= 172) {
                     // Set Next step to hblank mode
-                    this._modeClock = 0;
+                    this._modeClock = this._modeClock % 172;
                     this._mode = 0;
 
                     // Write a scanline to the framebuffer
@@ -267,7 +267,7 @@ class GPU extends Logger implements LoggerInterface {
             // After the last hblank, push screen data to canvas
             case 0: {
                 if(this._modeClock >= 204) {
-                    this._modeClock = 0;
+                    this._modeClock = this._modeClock % 204;
                     this._line = this._line.ADD(1);
 
                     if(this._line.getVal() == 143) {
@@ -283,7 +283,7 @@ class GPU extends Logger implements LoggerInterface {
 
             case 1: {
                 if(this._modeClock >= 456) {
-                    this._modeClock = 0;
+                    this._modeClock = this._modeClock % 456;
                     this._line = this._line.ADD(1);
 
                     if(this._line.getVal() > 153) {

@@ -26,6 +26,7 @@ class GameBoy {
 
     frame() {
 		const fclk = Z80._clock.t + 70224;
+
         do {
             // Reset Instruction Timer Count
 			Z80._r.m = 0;

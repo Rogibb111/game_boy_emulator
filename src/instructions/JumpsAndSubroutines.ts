@@ -40,13 +40,11 @@ export const JR_cc_e8 = {
     action: function ({ opcode1, operand1,  _r }): void {
         const conditionMet = this.map[opcode1.getVal()](_r.f.getVal());
 		const signedVal =  getSignedVal(operand1.getVal());
-        if (conditionMet) {
+        
+		if (conditionMet) {
             _r.pc = _r.pc.ADD(signedVal);
-        }
-
-        if (conditionMet) {
             this.m = 3;
-            this.m = 12;
+            this.t = 12;
         }
     },
     map: {
