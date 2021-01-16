@@ -26,7 +26,6 @@ class GameBoy {
 
     frame() {
 		const fclk = Z80._clock.t + 70224;
-		let opcodesRun = 0;
 
         do {
             // Reset Instruction Timer Count
@@ -57,7 +56,6 @@ class GameBoy {
 
             // Update timer again, in case a RST occured
             TIMER.inc();
-			opcodesRun += 1;
         } while (Z80._clock.t < fclk);
     }
 

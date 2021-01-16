@@ -21,7 +21,6 @@ class GPU extends Logger implements LoggerInterface {
     _switchbg = 0;
     _switchobj = 0;
     _switchlcd = 0;
-	_modeClockAdder = 0;
     _pal = {
         bg: [],
         obj0: [],
@@ -244,7 +243,6 @@ class GPU extends Logger implements LoggerInterface {
             case 2: {
                 if (this._modeClock >= 80) {
                     // Set Next step to VRAM read mode
-					this._modeClockAdder += this._modeClock;
                     this._modeClock = this._modeClock % 80;
                     this._mode = 3;
                 }
@@ -256,7 +254,6 @@ class GPU extends Logger implements LoggerInterface {
             case 3: {
                 if(this._modeClock >= 172) {
                     // Set Next step to hblank mode
-					this._modeClockAdder += this._modeClock;
                     this._modeClock = this._modeClock % 172;
                     this._mode = 0;
 
@@ -270,7 +267,6 @@ class GPU extends Logger implements LoggerInterface {
             // After the last hblank, push screen data to canvas
             case 0: {
                 if(this._modeClock >= 204) {
-					this._modeClockAdder += this._modeClock;
                     this._modeClock = this._modeClock % 204;
                     this._line = this._line.ADD(1);
 
@@ -281,14 +277,12 @@ class GPU extends Logger implements LoggerInterface {
                     } else {
                         this._mode = 2;
                     }
-				console.log(`Scanline End: ${this._line.getVal()} ->  Global Left Over: ${(Z80._clock.t + Z80._r.t) % 456} = ModeClock: ${this._modeClock}, Global Clock: ${Z80._clock.t + Z80._r.t}, Calculated Scanline Clock: ${this._line.getVal() * 456} `);
                 }
                 break;
             }
 
             case 1: {
                 if(this._modeClock >= 456) {
-					this._modeClockAdder += this._modeClock;
                     this._modeClock = this._modeClock % 456;
                     this._line = this._line.ADD(1);
 
@@ -297,7 +291,6 @@ class GPU extends Logger implements LoggerInterface {
                         this._mode = 2;
                         this._line = new Byte(0);
                     }
-					console.log(`V-Blank Line End: ${this._line.getVal()} ->  Global Left Over: ${(Z80._clock.t + Z80._r.t) % 456} = ModeClock: ${this._modeClock}, Global Clock: ${Z80._clock.t + Z80._r.t}, Calculated Scanline Clock: ${this._line.getVal() * 456} `);
                 }
                 break;
             }
